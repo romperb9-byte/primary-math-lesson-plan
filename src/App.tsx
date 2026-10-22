@@ -7,6 +7,7 @@ import {
   parseSmartScheduleInput,
   intToKhmer,
 } from './data/curriculumData';
+import { getCurrentLunarDate, getCurrentSolarDate } from './utils/dateUtils';
 import { Header } from './components/Header';
 import { TabStudio } from './components/TabStudio';
 import { TabDocument } from './components/TabDocument';
@@ -19,7 +20,12 @@ const STORAGE_KEY = 'moeys_math_package_saved_plans_v1';
 export default function App() {
   const [activeTab, setActiveTab] = useState('studio');
   const [plan, setPlan] = useState<LessonPlan>(() => {
-    return JSON.parse(JSON.stringify(LESSON_PRESETS[0]));
+    const base = JSON.parse(JSON.stringify(LESSON_PRESETS[0]));
+    return {
+      ...base,
+      lunarDate: getCurrentLunarDate(),
+      solarDate: getCurrentSolarDate(),
+    };
   });
   const [savedPlans, setSavedPlans] = useState<LessonPlan[]>([]);
   const [hasServerAi, setHasServerAi] = useState(false);
@@ -104,11 +110,17 @@ export default function App() {
     let newPlan: LessonPlan;
     const combined = `${parsed.officialTocTitle} ${parsed.subTopicTitle} ${q}`;
 
+    // Ensure generated plan always reflects the real current date
+    const todayLunar = getCurrentLunarDate();
+    const todaySolar = getCurrentSolarDate(plan.school ? plan.school.split('(')[0].trim() : 'ថ្លុកបង្កោ');
+
     if (combined.includes('ប្តូរខ្នាត') || (combined.includes('ប្រវែង') && combined.includes('ប្តូរ'))) {
       newPlan = {
         ...JSON.parse(JSON.stringify(LESSON_PRESETS[0])),
         grade: g,
         duration: parsed.duration,
+        lunarDate: todayLunar,
+        solarDate: todaySolar,
         mainLesson: mainLessonStr,
         subTopic: subTopicStr,
         activityTitle: actTitleStr,
@@ -119,6 +131,8 @@ export default function App() {
         ...JSON.parse(JSON.stringify(LESSON_PRESETS[2])),
         grade: g,
         duration: parsed.duration,
+        lunarDate: todayLunar,
+        solarDate: todaySolar,
         mainLesson: mainLessonStr,
         subTopic: subTopicStr,
         activityTitle: actTitleStr,
@@ -129,6 +143,8 @@ export default function App() {
         ...JSON.parse(JSON.stringify(LESSON_PRESETS[1])),
         grade: g,
         duration: parsed.duration,
+        lunarDate: todayLunar,
+        solarDate: todaySolar,
         mainLesson: mainLessonStr,
         subTopic: subTopicStr,
         activityTitle: actTitleStr,
@@ -139,6 +155,8 @@ export default function App() {
         ...JSON.parse(JSON.stringify(LESSON_PRESETS[4])),
         grade: g,
         duration: parsed.duration,
+        lunarDate: todayLunar,
+        solarDate: todaySolar,
         mainLesson: mainLessonStr,
         subTopic: subTopicStr,
         activityTitle: actTitleStr,
@@ -149,6 +167,8 @@ export default function App() {
         ...JSON.parse(JSON.stringify(LESSON_PRESETS[5])),
         grade: g,
         duration: parsed.duration,
+        lunarDate: todayLunar,
+        solarDate: todaySolar,
         mainLesson: mainLessonStr,
         subTopic: subTopicStr,
         activityTitle: actTitleStr,
@@ -159,6 +179,8 @@ export default function App() {
         ...JSON.parse(JSON.stringify(LESSON_PRESETS[3])),
         grade: g,
         duration: parsed.duration,
+        lunarDate: todayLunar,
+        solarDate: todaySolar,
         mainLesson: mainLessonStr,
         subTopic: subTopicStr,
         activityTitle: actTitleStr,
@@ -171,8 +193,8 @@ export default function App() {
         teacher: plan.teacher,
         school: plan.school,
         duration: parsed.duration,
-        lunarDate: plan.lunarDate,
-        solarDate: plan.solarDate,
+        lunarDate: todayLunar,
+        solarDate: todaySolar,
         mainLesson: mainLessonStr,
         subTopic: subTopicStr,
         expectedOutcome: `លទ្ធផលរំពឹងទុក៖ សិស្សយល់ច្បាស់ពីបញ្ញត្តិ និងដោះស្រាយលំហាត់លើខ្លឹមសារ «${parsed.subTopicTitle}» បានត្រឹមត្រូវ។`,

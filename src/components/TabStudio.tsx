@@ -20,7 +20,9 @@ import {
   AlertTriangle,
   CheckCircle2,
   Sliders,
+  Calendar,
 } from 'lucide-react';
+import { getCurrentLunarDate, getCurrentSolarDate } from '../utils/dateUtils';
 
 interface TabStudioProps {
   plan: LessonPlan;
@@ -569,6 +571,26 @@ export const TabStudio: React.FC<TabStudioProps> = ({
               />
             </div>
 
+            <div className="flex items-center justify-between pt-1">
+              <span className="text-xs font-bold text-slate-700">កាលបរិច្ឆេទកិច្ចតែងការ៖</span>
+              <button
+                type="button"
+                onClick={() => {
+                  const loc = plan.school ? plan.school.split('(')[0].trim() : 'ថ្លុកបង្កោ';
+                  setPlan((prev) => ({
+                    ...prev,
+                    lunarDate: getCurrentLunarDate(),
+                    solarDate: getCurrentSolarDate(loc),
+                  }));
+                }}
+                className="px-2.5 py-1 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-900 border border-blue-200 text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                title="កំណត់កាលបរិច្ឆេទមកថ្ងៃនេះដោយស្វ័យប្រវត្តិ"
+              >
+                <Calendar className="w-3.5 h-3.5 text-blue-700" />
+                <span>🔄 កំណត់ថ្ងៃនេះដោយស្វ័យប្រវត្តិ</span>
+              </button>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1">
@@ -578,7 +600,7 @@ export const TabStudio: React.FC<TabStudioProps> = ({
                   type="text"
                   value={plan.lunarDate}
                   onChange={(e) => handleFieldChange('lunarDate', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white"
                 />
               </div>
               <div>
@@ -589,7 +611,7 @@ export const TabStudio: React.FC<TabStudioProps> = ({
                   type="text"
                   value={plan.solarDate}
                   onChange={(e) => handleFieldChange('solarDate', e.target.value)}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white"
                 />
               </div>
             </div>
