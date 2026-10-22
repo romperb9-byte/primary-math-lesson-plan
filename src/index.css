@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+:root {
+  --font-body: 'Kantumruy Pro', 'Battambang', 'Inter', sans-serif;
+  --font-doc: 'Battambang', 'Kantumruy Pro', 'Siemreap', sans-serif;
+  --font-heading: 'Moul', 'Khmer OS Muol Light', serif;
+}
+
+body {
+  font-family: var(--font-body);
+}
+
+.khmer-moul {
+  font-family: var(--font-heading);
+  line-height: 1.8;
+}
+
+.khmer-doc {
+  font-family: var(--font-doc);
+  line-height: 1.65;
+}
+
+.lesson-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.lesson-table th,
+.lesson-table td {
+  border: 1.5px solid #1e293b;
+  padding: 10px 12px;
+  vertical-align: top;
+  font-size: 0.92rem;
+  line-height: 1.65;
+}
+
+.lesson-table th {
+  background-color: #eff6ff;
+  font-weight: 700;
+  text-align: center;
+  color: #1e3a8a;
+}
+
+.editable-active [contenteditable="true"] {
+  outline: 2px dashed #3b82f6;
+  outline-offset: 2px;
+  background-color: #fefce8;
+  border-radius: 4px;
+}
+
+@media print {
+  body {
+    background: #ffffff !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only-sheet {
+    display: block !important;
+    box-shadow: none !important;
+    border: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+}
