@@ -86,7 +86,7 @@ export default function App() {
   };
 
   // Run AI Generation (with Gemini server endpoint or Smart Engine fallback)
-  const handleRunAi = async (promptText: string) => {
+  const handleRunAi = async (promptText: string, forcedGrade?: string) => {
     const q = promptText.trim();
     if (!q) {
       showToast('សូមបិទភ្ជាប់ (Paste) ឬវាយបញ្ចូលប្រធានបទមេរៀនជាមុនសិន!', '⚠️');
@@ -95,7 +95,7 @@ export default function App() {
 
     setIsLoadingAi(true);
     const parsed = parseSmartScheduleInput(q);
-    const g = parsed.grade;
+    const g = forcedGrade || parsed.grade;
     const mainLessonStr = `មេរៀនទី${parsed.lessonNumKh}៖ ${parsed.officialTocTitle} (សស. ទំព័រ ${parsed.ssPage})`;
     const subTopicStr = `ខ្លឹមសាររង៖ ${parsed.tgCodePrefix} ${parsed.subTopicTitle} (ស.គ្រូ ទំព័រ ${parsed.tgPage})`;
     const actTitleStr = `សកម្មភាពទី${parsed.tgActKh}៖ ${parsed.subTopicTitle} ទំព័រ ${parsed.tgPage} (សៀវភៅណែនាំគ្រូ បោះពុម្ពឆ្នាំ២០២៤)`;

@@ -25,7 +25,7 @@ import {
 interface TabStudioProps {
   plan: LessonPlan;
   setPlan: React.Dispatch<React.SetStateAction<LessonPlan>>;
-  onRunAi: (promptText: string) => Promise<void>;
+  onRunAi: (promptText: string, forcedGrade?: string) => Promise<void>;
   isLoadingAi: boolean;
   onSavePlan: () => void;
   onGoToDocument: () => void;
@@ -43,30 +43,73 @@ export const TabStudio: React.FC<TabStudioProps> = ({
   onGoToSlides,
   onCopyText,
 }) => {
+  const [quickGrade, setQuickGrade] = useState('៣');
+  const [quickLessonIdx, setQuickLessonIdx] = useState(4); // Lesson 5 Length in G3
+  const [quickSubtopic, setQuickSubtopic] = useState('ការប្តូរខ្នាតប្រវែង');
   const [promptText, setPromptText] = useState(
     '១ម៉\nសស. មេ. ៥៖ ប្រវែង ការប្តូរខ្នាតប្រវែង (ទំ.៣៦)\nសគ. ជំ.៥ មេ.១៖ សកម្ម. ទី៨ (ទំ.២៥៧-២៥៨)'
   );
   const [gradeFilter, setGradeFilter] = useState('ALL');
-  const [quickGrade, setQuickGrade] = useState('៣');
-  const [quickLessonIdx, setQuickLessonIdx] = useState(4); // Lesson 5 Length in G3
-  const [quickSubtopic, setQuickSubtopic] = useState('ការប្តូរខ្នាតប្រវែង');
+  const [validationError, setValidationError] = useState<string | null>(null);
 
-  // Filter TOC for quick picker
+  // Filter TOC for quick picker based on selected grade
   const filteredToc = OFFICIAL_TOC_DB.filter((item) => item.grade === quickGrade);
 
   const parsedInfo = parseSmartScheduleInput(promptText);
   const booksMeta = GRADE_BOOKS_META[plan.grade] || GRADE_BOOKS_META['៣'];
 
-  // Handle TOC apply
-  const handleApplyToc = () => {
-    const selected = filteredToc[quickLessonIdx] || filteredToc[0];
+  // Sync selection to paste box
+  const syncToPasteBox = (g: string, lessonIdx: number, subTxt: string) => {
+    const list = OFFICIAL_TOC_DB.filter((item) => item.grade === g);
+    const selected = list[lessonIdx] || list[0];
     if (!selected) return;
     const numKh = intToKhmer(selected.lesson);
-    const subTxt = quickSubtopic.trim() || selected.title;
+    const finalSub = subTxt.trim() || selected.title;
     const ssP = intToKhmer(selected.pStart);
-    const snippet = `ថ្នាក់ទី${quickGrade} • ១ម៉\nសស. មេ. ${numKh}៖ ${selected.title} ${subTxt} (ទំ.${ssP})\nសគ. ជំ.${numKh} មេ.១៖ សកម្ម. ទី១ (ទំ.${intToKhmer(selected.pStart * 2 + 10)})`;
-    setPromptText(snippet);
-    onRunAi(snippet);
+    const tgP = intToKhmer(selected.pStart * 2 + 10);
+    const generatedPaste = `១ម៉\nសស. មេ. ${numKh}៖ ${selected.title} ${finalSub} (ទំ.${ssP})\nសគ. ជំ.${numKh} មេ.១៖ សកម្ម. ទី១ (ទំ.${tgP}-${intToKhmer(selected.pStart * 2 + 11)})`;
+    setPromptText(generatedPaste);
+  };
+
+  // When Grade changes
+  const handleGradeChange = (newG: string) => {
+    setQuickGrade(newG);
+    setQuickLessonIdx(0);
+    const list = OFFICIAL_TOC_DB.filter((item) => item.grade === newG);
+    const firstLesson = list[0];
+    const initialSub = firstLesson ? firstLesson.title : '';
+    setQuickSubtopic(initialSub);
+    syncToPasteBox(newG, 0, initialSub);
+    setValidationError(null);
+  };
+
+  // When Lesson changes
+  const handleLessonChange = (idx: number) => {
+    setQuickLessonIdx(idx);
+    const selected = filteredToc[idx];
+    const sub = selected ? selected.title : quickSubtopic;
+    setQuickSubtopic(sub);
+    syncToPasteBox(quickGrade, idx, sub);
+    setValidationError(null);
+  };
+
+  // Handle TOC apply button click
+  const handleApplyToc = () => {
+    syncToPasteBox(quickGrade, quickLessonIdx, quickSubtopic);
+  };
+
+  // Handle Generate with AI Button Click with strict validation
+  const handleGenerateClick = () => {
+    if (!quickGrade) {
+      setValidationError('សូមជ្រើសរើស «កម្រិតថ្នាក់ (កំហិត)» ជាមុនសិន!');
+      return;
+    }
+    if (!promptText.trim()) {
+      setValidationError('សូមបិទភ្ជាប់ (Paste) ខ្លឹមសារកាលវិភាគ «(កំហិត)» ជាមុនសិន!');
+      return;
+    }
+    setValidationError(null);
+    onRunAi(promptText, quickGrade);
   };
 
   const handleFieldChange = (field: keyof LessonPlan, value: any) => {
@@ -83,20 +126,22 @@ export const TabStudio: React.FC<TabStudioProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Top Banner: Smart Paste Box */}
+      {/* Top Banner: 5-Step AI Workflow Box */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-4">
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-3 border-b border-slate-100">
           <div>
-            <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span>ប្រអប់បិទភ្ជាប់ឆ្លាតវៃ (Smart Schedule Paste) — បង្កើតកិច្ចតែងការភ្លាមៗ</span>
-            </h2>
-            <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-              គ្រាន់តែ Copy & Paste អត្ថបទពីតារាងបំណែងចែកកម្មវិធីសិក្សា (ឧ. <code className="bg-slate-100 px-1.5 py-0.5 rounded text-blue-900 font-semibold">១ម៉ / សស. មេ. ៥៖ ... / សគ. ជំ.៥ មេ.១៖ សកម្ម. ទី៨ ...</code>) ប្រព័ន្ធនឹងកំណត់កម្រិតថ្នាក់ សៀវភៅសិស្ស សៀវភៅគ្រូ និងសៀវភៅស្ដង់ដារ MCAS ដោយស្វ័យប្រវត្តិ!
+            <div className="flex items-center gap-2">
+              <span className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
+              <h2 className="text-base sm:text-lg font-bold text-slate-900">
+                ដំណើរការបង្កើតកិច្ចតែងការដោយ AI (៥ ជំហានស្ដង់ដារ)
+              </h2>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1">
+              សូមអនុវត្តតាមលំដាប់លំដោយ៖ <strong>១. ជ្រើសកម្រិតថ្នាក់ (កំហិត)</strong> ➔ <strong>២. ជ្រើសមេរៀន (ស្រេចចិត្ត)</strong> ➔ <strong>៣. ខ្លឹមសាររង (ស្រេចចិត្ត)</strong> ➔ <strong>៤. បិទភ្ជាប់ Paste កាលវិភាគ (កំហិត)</strong> ➔ <strong>៥. ចុចប៊ូតុង បង្កើតកិច្ចតែងការដោយ AI</strong>!
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="text-xs font-semibold text-slate-500">មេរៀនគំរូតាមថ្នាក់៖</span>
+            <span className="text-xs font-semibold text-slate-500">តម្រងមេរៀនគំរូ៖</span>
             {['ALL', '១', '២', '៣', '៤', '៥', '៦'].map((g) => (
               <button
                 key={g}
@@ -114,31 +159,49 @@ export const TabStudio: React.FC<TabStudioProps> = ({
           </div>
         </div>
 
-        {/* Smart Paste Container */}
-        <div className="bg-gradient-to-br from-blue-50 via-indigo-50/70 to-amber-50/40 rounded-2xl p-4 sm:p-5 border-2 border-blue-300 shadow-inner space-y-3">
-          {/* 104-Lesson Dropdown Picker */}
-          <div className="bg-white rounded-xl p-3.5 border border-indigo-200 shadow-sm space-y-2.5">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
-                <span>🗂️ ជ្រើសរើសមេរៀនពីមាតិកាផ្លូវការទាំង ១០៤ មេរៀន (ថ្នាក់ទី១ ដល់ ថ្នាក់ទី៦)៖</span>
+        {/* Validation Error Banner */}
+        {validationError && (
+          <div className="p-3.5 rounded-xl bg-rose-50 border-2 border-rose-300 text-rose-900 text-xs sm:text-sm font-bold flex items-center justify-between gap-2 animate-fadeIn">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-rose-600 flex-shrink-0" />
+              <span>{validationError}</span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setValidationError(null)}
+              className="text-xs underline text-rose-700 hover:text-rose-900 font-semibold cursor-pointer"
+            >
+              បិទ
+            </button>
+          </div>
+        )}
+
+        {/* Step-by-Step AI Generator Container */}
+        <div className="bg-gradient-to-br from-blue-50 via-indigo-50/70 to-amber-50/40 rounded-2xl p-4 sm:p-5 border-2 border-blue-400 shadow-inner space-y-4">
+          {/* Steps 1, 2, 3 Grid */}
+          <div className="bg-white rounded-xl p-4 border border-indigo-200 shadow-sm space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-100">
+              <span className="text-xs sm:text-sm font-bold text-indigo-950 flex items-center gap-1.5">
+                <span>🗂️ កំណត់ព័ត៌មានមេរៀន (ជំហានទី១ ដល់ ទី៣)៖</span>
               </span>
               <span className="px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-900 text-[11px] font-bold">
-                គាំទ្រគ្រប់មេរៀន • គ្រប់កម្រិតថ្នាក់
+                ស្រង់ចេញពីមាតិកាផ្លូវការទាំង ១០៤ មេរៀន (ថ្នាក់ទី១ ដល់ ទី៦)
               </span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-end">
-              <div className="sm:col-span-3">
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                  ១. ជ្រើសរើសកម្រិតថ្នាក់
+            <div className="grid grid-cols-1 sm:grid-cols-12 gap-3 items-end">
+              {/* STEP 1: GRADE (MANDATORY) */}
+              <div className="sm:col-span-4 bg-rose-50/40 p-2.5 rounded-xl border border-rose-200">
+                <label className="block text-xs font-bold text-slate-800 mb-1 flex items-center justify-between">
+                  <span>១. ជ្រើសកម្រិតថ្នាក់</span>
+                  <span className="px-1.5 py-0.2 rounded bg-rose-600 text-white text-[10px] font-bold">
+                    កំហិត
+                  </span>
                 </label>
                 <select
                   value={quickGrade}
-                  onChange={(e) => {
-                    setQuickGrade(e.target.value);
-                    setQuickLessonIdx(0);
-                  }}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs sm:text-sm font-bold bg-slate-50 text-blue-950"
+                  onChange={(e) => handleGradeChange(e.target.value)}
+                  className="w-full px-3 py-2 rounded-lg border-2 border-rose-300 focus:border-blue-700 text-xs sm:text-sm font-bold bg-white text-blue-950 shadow-xs cursor-pointer"
                 >
                   <option value="១">ថ្នាក់ទី១ (១៩ មេរៀន - កញ្ចប់គណិត)</option>
                   <option value="២">ថ្នាក់ទី២ (១៧ មេរៀន - កញ្ចប់គណិត)</option>
@@ -149,14 +212,18 @@ export const TabStudio: React.FC<TabStudioProps> = ({
                 </select>
               </div>
 
-              <div className="sm:col-span-5">
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                  ២. ជ្រើសរើសមេរៀនធំក្នុងសៀវភៅសិស្ស (សស.)
+              {/* STEP 2: LESSON (OPTIONAL) */}
+              <div className="sm:col-span-4 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                <label className="block text-xs font-semibold text-slate-800 mb-1 flex items-center justify-between">
+                  <span>២. ជ្រើសមេរៀនក្នុងសៀវភៅ (សស.)</span>
+                  <span className="px-1.5 py-0.2 rounded bg-slate-200 text-slate-700 text-[10px] font-medium">
+                    ស្រេចចិត្ត
+                  </span>
                 </label>
                 <select
                   value={quickLessonIdx}
-                  onChange={(e) => setQuickLessonIdx(parseInt(e.target.value, 10))}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs sm:text-sm font-semibold bg-white text-slate-900"
+                  onChange={(e) => handleLessonChange(parseInt(e.target.value, 10))}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs sm:text-sm font-semibold bg-white text-slate-900 cursor-pointer"
                 >
                   {filteredToc.map((t, idx) => (
                     <option key={t.lesson} value={idx}>
@@ -167,9 +234,13 @@ export const TabStudio: React.FC<TabStudioProps> = ({
                 </select>
               </div>
 
-              <div className="sm:col-span-4">
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                  ៣. ខ្លឹមសាររង / សកម្មភាពទី... (ស្រេចចិត្ត)
+              {/* STEP 3: SUBTOPIC (OPTIONAL) */}
+              <div className="sm:col-span-4 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                <label className="block text-xs font-semibold text-slate-800 mb-1 flex items-center justify-between">
+                  <span>៣. ខ្លឹមសាររង / សកម្មភាពទី...</span>
+                  <span className="px-1.5 py-0.2 rounded bg-slate-200 text-slate-700 text-[10px] font-medium">
+                    ស្រេចចិត្ត
+                  </span>
                 </label>
                 <div className="flex gap-1.5">
                   <input
@@ -182,91 +253,109 @@ export const TabStudio: React.FC<TabStudioProps> = ({
                   <button
                     type="button"
                     onClick={handleApplyToc}
-                    className="px-3 py-2 rounded-lg bg-indigo-900 hover:bg-indigo-800 text-white text-xs font-bold whitespace-nowrap shadow-sm cursor-pointer"
+                    className="px-2.5 py-2 rounded-lg bg-indigo-900 hover:bg-indigo-800 text-white text-xs font-bold whitespace-nowrap shadow-sm cursor-pointer"
+                    title="បញ្ចូលខ្លឹមសារនេះទៅប្រអប់ Paste"
                   >
-                    បញ្ចូល ↓
+                    បញ្ចូល ⬇️
                   </button>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Quick Paste Prompts */}
-          <div className="flex flex-wrap items-center justify-between gap-2 pt-1">
-            <label className="block text-xs sm:text-sm font-bold text-blue-950">
-              📋 បិទភ្ជាប់ (Paste) ខ្លឹមសារពីកាលវិភាគ ឬវាយបញ្ចូលទម្រង់កាត់ (សស. / សគ.) នៅទីនេះ៖
-            </label>
-            <div className="flex flex-wrap items-center gap-1.5">
-              <span className="text-[11px] font-semibold text-slate-600">សាកល្បងគំរូ៖</span>
-              <button
-                type="button"
-                onClick={() => {
-                  setPromptText(SAMPLE_PASTES['g3-len']);
-                  onRunAi(SAMPLE_PASTES['g3-len']);
-                }}
-                className="px-2.5 py-1 rounded-lg bg-blue-900 text-white text-[11px] font-bold hover:bg-blue-800 transition cursor-pointer"
-              >
-                📌 ថ្នាក់ទី៣៖ មេ.៥ ប្រវែង (ទំ.៣៦)
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setPromptText(SAMPLE_PASTES['g2-weight']);
-                  onRunAi(SAMPLE_PASTES['g2-weight']);
-                }}
-                className="px-2.5 py-1 rounded-lg bg-white text-indigo-900 border border-indigo-300 text-[11px] font-bold hover:bg-indigo-50 transition cursor-pointer"
-              >
-                📌 ថ្នាក់ទី២៖ មេ.៩ ទម្ងន់ (ទំ.៦១)
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setPromptText(SAMPLE_PASTES['g1-geo']);
-                  onRunAi(SAMPLE_PASTES['g1-geo']);
-                }}
-                className="px-2.5 py-1 rounded-lg bg-white text-emerald-900 border border-emerald-300 text-[11px] font-bold hover:bg-emerald-50 transition cursor-pointer"
-              >
-                📌 ថ្នាក់ទី១៖ មេ.៩ ធរណីមាត្រ (ទំ.៤៨)
-              </button>
-            </div>
-          </div>
-
-          {/* Textarea & Generate Button */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch">
-            <div className="lg:col-span-9">
-              <textarea
-                rows={3}
-                value={promptText}
-                onChange={(e) => setPromptText(e.target.value)}
-                onPaste={(e) => {
-                  const pastedData = e.clipboardData.getData('text');
-                  if (pastedData && pastedData.trim().length > 5) {
-                    setTimeout(() => onRunAi(pastedData), 60);
-                  }
-                }}
-                placeholder="១ម៉&#10;សស. មេ. ៥៖ ប្រវែង ការប្តូរខ្នាតប្រវែង (ទំ.៣៦)&#10;សគ. ជំ.៥ មេ.១៖ សកម្ម. ទី៨ (ទំ.២៥៧-២៥៨)"
-                className="w-full px-4 py-3 rounded-xl border border-blue-300 bg-white text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-700 leading-relaxed shadow-sm"
-              />
-            </div>
-            <div className="lg:col-span-3 flex flex-col gap-2 justify-between">
-              <button
-                type="button"
-                disabled={isLoadingAi}
-                onClick={() => onRunAi(promptText)}
-                className="flex-1 px-4 py-3 rounded-xl bg-blue-900 hover:bg-blue-800 disabled:opacity-60 text-white text-sm font-bold shadow-md transition flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <Sparkles className="w-4 h-4 text-amber-300" />
-                <span>
-                  {isLoadingAi ? 'កំពុងបង្កើតដោយ AI...' : '⚡ បង្កើតកិច្ចតែងការដោយ AI'}
+          {/* STEP 4: PASTE TEXTAREA BOX (MANDATORY) */}
+          <div className="space-y-2">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <label className="block text-xs sm:text-sm font-bold text-blue-950 flex items-center gap-2">
+                <span>៤. បិទភ្ជាប់ (Paste) កាលវិភាគ ឬទម្រង់កាត់ក្នុងប្រអប់នេះ</span>
+                <span className="px-2 py-0.5 rounded bg-rose-600 text-white text-[11px] font-bold">
+                  កំហិត
                 </span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setPromptText('')}
-                className="px-2.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-semibold transition cursor-pointer"
-              >
-                🧹 សម្អាតប្រអប់សម្រាប់ Paste ថ្មី
-              </button>
+              </label>
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-[11px] font-semibold text-slate-600">ចុចបំពេញគំរូភ្លាមៗ៖</span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuickGrade('៣');
+                    setPromptText(
+                      '១ម៉\nសស. មេ. ៥៖ ប្រវែង ការប្តូរខ្នាតប្រវែង (ទំ.៣៦)\nសគ. ជំ.៥ មេ.១៖ សកម្ម. ទី៨ (ទំ.២៥៧-២៥៨)'
+                    );
+                    setValidationError(null);
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-blue-900 text-white text-[11px] font-bold hover:bg-blue-800 transition cursor-pointer shadow-xs"
+                >
+                  📌 គំរូកំហិត៖ សស. មេ. ៥ ប្រវែង (ទំ.៣៦) / សគ. សកម្ម. ទី៨
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuickGrade('២');
+                    setPromptText(SAMPLE_PASTES['g2-weight']);
+                    setValidationError(null);
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-white text-indigo-900 border border-indigo-300 text-[11px] font-bold hover:bg-indigo-50 transition cursor-pointer"
+                >
+                  📌 ថ្នាក់ទី២៖ មេ.៩ ទម្ងន់
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuickGrade('១');
+                    setPromptText(SAMPLE_PASTES['g1-geo']);
+                    setValidationError(null);
+                  }}
+                  className="px-2.5 py-1 rounded-lg bg-white text-emerald-900 border border-emerald-300 text-[11px] font-bold hover:bg-emerald-50 transition cursor-pointer"
+                >
+                  📌 ថ្នាក់ទី១៖ មេ.៩ ធរណីមាត្រ
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch">
+              <div className="lg:col-span-9">
+                <textarea
+                  rows={4}
+                  value={promptText}
+                  onChange={(e) => {
+                    setPromptText(e.target.value);
+                    setValidationError(null);
+                  }}
+                  placeholder="១ម៉&#10;សស. មេ. ៥៖ ប្រវែង ការប្តូរខ្នាតប្រវែង (ទំ.៣៦)&#10;សគ. ជំ.៥ មេ.១៖ សកម្ម. ទី៨ (ទំ.២៥៧-២៥៨)"
+                  className="w-full px-4 py-3 rounded-xl border-2 border-blue-400 bg-white text-xs sm:text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-700 leading-relaxed shadow-sm"
+                />
+              </div>
+
+              {/* STEP 5: RUN AI GENERATION BUTTON */}
+              <div className="lg:col-span-3 flex flex-col gap-2 justify-between">
+                <button
+                  type="button"
+                  disabled={isLoadingAi}
+                  onClick={handleGenerateClick}
+                  className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-blue-900 to-indigo-900 hover:from-blue-800 hover:to-indigo-800 disabled:opacity-60 text-white text-sm font-bold shadow-md transition flex flex-col items-center justify-center gap-1.5 cursor-pointer border-2 border-amber-300"
+                >
+                  <div className="flex items-center gap-2 text-amber-300">
+                    <Sparkles className="w-5 h-5 animate-spin" style={{ animationDuration: '3s' }} />
+                    <span className="text-xs uppercase tracking-wider font-extrabold text-amber-300">
+                      ជំហានទី៥ (ចុងក្រោយ)
+                    </span>
+                  </div>
+                  <span className="text-center font-bold text-sm sm:text-base leading-tight">
+                    {isLoadingAi ? '⏳ កំពុងបង្កើតកិច្ចតែងការ...' : '⚡ បង្កើតកិច្ចតែងការដោយ AI'}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setPromptText('');
+                    setValidationError(null);
+                  }}
+                  className="px-2.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-semibold transition cursor-pointer"
+                >
+                  🧹 សម្អាតប្រអប់សម្រាប់ Paste ថ្មី
+                </button>
+              </div>
             </div>
           </div>
 
