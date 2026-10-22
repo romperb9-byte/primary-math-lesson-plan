@@ -1,0 +1,2854 @@
+<!DOCTYPE html>
+<html lang="km">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ប្រព័ន្ធ AI Agent បង្កើតកិច្ចតែងការបង្រៀនកម្មវិធីកញ្ចប់គណិតវិទ្យា (ថ្នាក់ទី១-៣)</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Battambang:wght@400;700&family=Inter:wght@400;500;600;700&family=Kantumruy+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Moul&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --font-body: 'Kantumruy Pro', 'Battambang', 'Inter', sans-serif;
+      --font-doc: 'Battambang', 'Kantumruy Pro', sans-serif;
+      --font-heading: 'Moul', serif;
+    }
+    body {
+      font-family: var(--font-body);
+      background-color: #f1f5f9;
+      color: #0f172a;
+      overflow-x: hidden;
+    }
+    .khmer-moul {
+      font-family: var(--font-heading);
+      line-height: 1.8;
+    }
+    .doc-sheet {
+      font-family: var(--font-doc);
+      line-height: 1.65;
+      color: #111827;
+      background: #ffffff;
+    }
+    .lesson-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .lesson-table th,
+    .lesson-table td {
+      border: 1.5px solid #1e293b;
+      padding: 10px 12px;
+      vertical-align: top;
+      font-size: 0.92rem;
+      line-height: 1.65;
+    }
+    .lesson-table th {
+      background-color: #eff6ff;
+      font-weight: 700;
+      text-align: center;
+      color: #1e3a8a;
+    }
+    .editable-active [contenteditable="true"] {
+      outline: 2px dashed #3b82f6;
+      outline-offset: 2px;
+      background-color: #fefce8;
+      border-radius: 4px;
+    }
+    @media print {
+      body {
+        background: #ffffff !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-only-sheet {
+        display: block !important;
+        box-shadow: none !important;
+        border: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- Toast Notification --><div class="hidden" id="g1-add-within10"></div><div class="hidden" id="g1-geo-2d"></div><div class="hidden" id="g1-num-1to5"></div><div class="hidden" id="g2-mult-2345"></div><div class="hidden" id="g2-place-1000"></div><div class="hidden" id="g3-frac-intro"></div>
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 hidden no-print">
+    <div id="toastBox" class="flex items-center gap-3 px-4 py-3 rounded-xl shadow-lg bg-slate-900 text-white text-sm font-medium border border-slate-700">
+      <span id="toastIcon" class="text-emerald-400 font-bold">✓</span>
+      <span id="toastMessage">បានរក្សាទុកដោយជោគជ័យ!</span>
+    </div>
+  </div>
+
+  <!-- Top Header -->
+  <header class="bg-gradient-to-r from-blue-950 via-blue-900 to-indigo-900 text-white shadow-md no-print">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <img src="data:image/jpeg;base64,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" alt="Math AI Agent Avatar" class="w-14 h-14 rounded-2xl object-cover border-2 border-amber-400 shadow-md flex-shrink-0" />
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-amber-400 text-slate-950">MoEYS • STEPCam • MCAS</span>
+            <span class="px-2.5 py-0.5 text-xs font-medium rounded-full bg-blue-800 text-blue-100 border border-blue-600">កញ្ចប់គណិតវិទ្យាថ្នាក់ដំបូង (ថ្នាក់ទី១-៣)</span>
+          </div>
+          <h1 class="text-lg sm:text-xl font-bold mt-1 tracking-wide">វេទិកា AI Agent បង្កើតកិច្ចតែងការបង្រៀនកម្មវិធីកញ្ចប់គណិតវិទ្យា</h1>
+          <p class="text-xs sm:text-sm text-blue-200">សាលាបឋមសិក្សាថ្លុកបង្កោ ស្រុកភ្នំក្រវាញ ខេត្តពោធិ៍សាត់ • បង្រៀនដោយ៖ លោកគ្រូ វិចិត្រ សន</p>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button type="button" id="btnOpenApiModal" class="px-3.5 py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-100 text-xs sm:text-sm font-bold border border-emerald-400/40 transition flex items-center gap-2 shadow-sm">
+          <span id="apiHeaderDot" class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+          <span>🔑 ភ្ជាប់ API Key</span>
+          <span id="apiConnectionBadge" class="px-2 py-0.5 text-[11px] rounded-full bg-slate-900/70 text-amber-300 font-semibold">Offline Mode</span>
+        </button>
+        <button type="button" id="btnDownloadStandaloneHtml" class="px-3.5 py-2 rounded-xl bg-indigo-500/30 hover:bg-indigo-500/50 text-white text-xs sm:text-sm font-semibold border border-indigo-300/30 transition flex items-center gap-1.5" title="ទាញយកឯកសារកម្មវិធី .html យកទៅប្រើដាច់ដោយឡែកលើកុំព្យូទ័រ ឬទូរសព្ទ">
+          <span>💻</span> <span>ទាញយកកម្មវិធី (.html)</span>
+        </button>
+        <button type="button" id="btnQuickPrint" class="px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs sm:text-sm font-medium border border-white/20 transition flex items-center gap-1.5">
+          <span>🖨️</span> <span>បោះពុម្ព / PDF</span>
+        </button>
+        <button type="button" id="btnQuickExportDoc" class="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs sm:text-sm font-bold shadow transition flex items-center gap-1.5">
+          <span>📥</span> <span>ទាញយក Word (.doc)</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="bg-blue-950/60 border-t border-blue-800/70">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 flex overflow-x-auto no-scrollbar gap-1 py-1.5">
+        <button type="button" data-tab="studio" class="nav-tab-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition bg-amber-400 text-slate-950 shadow-sm">🤖 ១. បង្កើតកិច្ចតែងការ (AI Agent Studio)</button>
+        <button type="button" data-tab="document" class="nav-tab-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition text-blue-100 hover:bg-blue-800/60">
+          📄 ២. កិច្ចតែងការផ្លូវការ (តារាង ៣ ជួរឈរ)
+        </button>
+        <button type="button" data-tab="slides" class="nav-tab-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition text-blue-100 hover:bg-blue-800/60">
+          🖥️ ៣. ស្លាយបង្រៀន ១២ ស្លាយ & សម្ភាររូបី
+        </button>
+        <button type="button" data-tab="library" class="nav-tab-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition text-blue-100 hover:bg-blue-800/60">
+          📚 ៤. បណ្ណាល័យសៀវភៅស្ដង់ដារ (ថ្នាក់ទី១-៣)
+        </button>
+        <button type="button" data-tab="saved" class="nav-tab-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition text-blue-100 hover:bg-blue-800/60">
+          🗂️ ៥. កិច្ចតែងការរក្សាទុក & ផ្ទៀងផ្ទាត់ស្ដង់ដារ (<span id="savedCountBadge">0</span>)
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace Container -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
+
+    <!-- TAB 1: AI AGENT STUDIO -->
+    <section id="tab-studio" class="tab-panel space-y-6 no-print">
+      <!-- SMART PASTE BOX & CURRICULUM PARSER BANNER -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-4">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-3 border-b border-slate-100">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              <span>ប្រអប់បិទភ្ជាប់ឆ្លាតវៃ (Smart Schedule Paste) — បង្កើតកិច្ចតែងការភ្លាមៗតាមសៀវភៅនីមួយៗ</span>
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-600 mt-0.5">
+              គ្រាន់តែ Copy & Paste អត្ថបទពីតារាងបំណែងចែកកម្មវិធីសិក្សា (ឧ. <code class="bg-slate-100 px-1.5 py-0.5 rounded text-blue-900 font-semibold">១ម៉ / សស. មេ. ៥៖ ... / សគ. ជំ.៥ មេ.១៖ សកម្ម. ទី៨ ...</code>) ប្រព័ន្ធនឹងកំណត់កម្រិតថ្នាក់ សៀវភៅសិស្ស សៀវភៅគ្រូ និងសៀវភៅស្ដង់ដារ MCAS ដោយស្វ័យប្រវត្តិភ្លាមៗ!
+            </p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-xs font-semibold text-slate-500">មេរៀនគំរូតាមថ្នាក់៖</span>
+            <button type="button" data-grade-filter="ALL" class="grade-chip px-2.5 py-1.5 rounded-lg text-xs font-bold bg-blue-900 text-white">ទាំងអស់</button>
+            <button type="button" data-grade-filter="១" class="grade-chip px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">ថ្នាក់ទី១</button>
+            <button type="button" data-grade-filter="២" class="grade-chip px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">ថ្នាក់ទី២</button>
+            <button type="button" data-grade-filter="៣" class="grade-chip px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">ថ្នាក់ទី៣</button>
+            <button type="button" data-grade-filter="៤" class="grade-chip px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">ថ្នាក់ទី៤</button>
+            <button type="button" data-grade-filter="៥" class="grade-chip px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">ថ្នាក់ទី៥</button>
+            <button type="button" data-grade-filter="៦" class="grade-chip px-2.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200">ថ្នាក់ទី៦</button>
+          </div>
+        </div>
+
+        <!-- SMART PASTE TEXTAREA BOX -->
+        <div class="bg-gradient-to-br from-blue-50 via-indigo-50/80 to-amber-50/40 rounded-2xl p-4 sm:p-5 border-2 border-blue-300 shadow-inner space-y-3">
+          <!-- Interactive 104-Lesson Curriculum Selector (Grades 1 to 6) -->
+          <div class="bg-white rounded-xl p-3.5 border border-indigo-200 shadow-sm space-y-2.5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <span class="text-xs font-bold text-indigo-950 flex items-center gap-1.5">
+                <span>🗂️ ជ្រើសរើសមេរៀនពីមាតិកាផ្លូវការទាំង ១០៤ មេរៀន (ថ្នាក់ទី១ ដល់ ថ្នាក់ទី៦)៖</span>
+              </span>
+              <span class="px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-900 text-[11px] font-bold">
+                គាំទ្រគ្រប់មេរៀន • គ្រប់កម្រិតថ្នាក់ (ថ្នាក់ទី១-៦)
+              </span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5 items-end">
+              <div class="sm:col-span-3">
+                <label for="selectQuickGradeToc" class="block text-[11px] font-semibold text-slate-600 mb-1">១. ជ្រើសរើសកម្រិតថ្នាក់ (១-៦)</label>
+                <select id="selectQuickGradeToc" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs sm:text-sm font-bold bg-slate-50 text-blue-950">
+                  <option value="១">ថ្នាក់ទី១ (១៩ មេរៀន - កញ្ចប់គណិត)</option>
+                  <option value="២">ថ្នាក់ទី២ (១៧ មេរៀន - កញ្ចប់គណិត)</option>
+                  <option value="៣" selected>ថ្នាក់ទី៣ (១៣ មេរៀន - កញ្ចប់គណិត)</option>
+                  <option value="៤">ថ្នាក់ទី៤ (១៧ មេរៀន - គណិតបឋម)</option>
+                  <option value="៥">ថ្នាក់ទី៥ (១៨ មេរៀន - គណិតបឋម)</option>
+                  <option value="៦">ថ្នាក់ទី៦ (២០ មេរៀន - គណិតបឋម)</option>
+                </select>
+              </div>
+              <div class="sm:col-span-5">
+                <label for="selectQuickLessonToc" class="block text-[11px] font-semibold text-slate-600 mb-1">២. ជ្រើសរើសមេរៀនធំក្នុងសៀវភៅសិស្ស (សស.)</label>
+                <select id="selectQuickLessonToc" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-xs sm:text-sm font-semibold bg-white text-slate-900"></select>
+              </div>
+              <div class="sm:col-span-4">
+                <label for="inputQuickSubtopic" class="block text-[11px] font-semibold text-slate-600 mb-1">៣. ខ្លឹមសាររង / សកម្មភាពទី... (ស្រេចចិត្ត)</label>
+                <div class="flex gap-1.5">
+                  <input id="inputQuickSubtopic" type="text" placeholder="ឧ. ការប្តូរខ្នាតប្រវែង (សកម្ម.ទី៨)" class="flex-1 px-3 py-2 rounded-lg border border-slate-300 text-xs sm:text-sm bg-white" />
+                  <button type="button" id="btnApplyTocSelection" class="px-3 py-2 rounded-lg bg-indigo-900 hover:bg-indigo-800 text-white text-xs font-bold whitespace-nowrap shadow-sm">
+                    បញ្ចូល ↓
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
+            <label for="aiPromptInput" class="block text-xs sm:text-sm font-bold text-blue-950">
+              📋 បិទភ្ជាប់ (Paste) ខ្លឹមសារពីកាលវិភាគ ឬវាយបញ្ចូលទម្រង់កាត់ (សស. / សគ.) នៅទីនេះ៖
+            </label>
+            <div class="flex flex-wrap items-center gap-1.5">
+              <span class="text-[11px] font-semibold text-slate-600">សាកល្បងទម្រង់ Paste ភ្លាមៗ៖</span>
+              <button type="button" data-sample-paste="g3-len" class="sample-paste-btn px-2.5 py-1 rounded-lg bg-blue-900 text-white text-[11px] font-bold hover:bg-blue-800 transition">
+                📌 គំរូ៖ សស. មេ.៥ ប្រវែង (ទំ.៣៦) / សគ. ជំ.៥ មេ.១ សកម្ម.ទី៨
+              </button>
+              <button type="button" data-sample-paste="g2-weight" class="sample-paste-btn px-2.5 py-1 rounded-lg bg-white text-indigo-900 border border-indigo-300 text-[11px] font-bold hover:bg-indigo-50 transition">
+                📌 ថ្នាក់ទី២៖ មេ.៩ ទម្ងន់ (ទំ.៦១)
+              </button>
+              <button type="button" data-sample-paste="g1-geo" class="sample-paste-btn px-2.5 py-1 rounded-lg bg-white text-emerald-900 border border-emerald-300 text-[11px] font-bold hover:bg-emerald-50 transition">
+                📌 ថ្នាក់ទី១៖ មេ.៩ ធរណីមាត្រ (ទំ.៤៨)
+              </button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch">
+            <div class="lg:col-span-9">
+              <textarea
+                id="aiPromptInput"
+                rows="3"
+                placeholder="១ម៉&#10;សស. មេ. ៥៖ ប្រវែង ការប្តូរខ្នាតប្រវែង (ទំ.៣៦)&#10;សគ. ជំ.៥ មេ.១៖ សកម្ម. ទី៨ (ទំ.២៥៧-២៥៨)"
+                class="w-full px-4 py-3 rounded-xl border border-blue-300 bg-white text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-700 leading-relaxed shadow-sm"
+              >១ម៉
+សស. មេ. ៥៖ ប្រវែង ការប្តូរខ្នាតប្រវែង (ទំ.៣៦)
+សគ. ជំ.៥ មេ.១៖ សកម្ម. ទី៨ (ទំ.២៥៧-២៥៨)</textarea>
+            </div>
+            <div class="lg:col-span-3 flex flex-col gap-2 justify-between">
+              <button
+                type="button"
+                id="btnRunAiAgent"
+                class="flex-1 px-4 py-3 rounded-xl bg-blue-900 hover:bg-blue-800 text-white text-sm font-bold shadow-md transition flex items-center justify-center gap-2"
+              ><span>⚡ បង្កើតកិច្ចតែងការដោយ AI Agent</span></button>
+              <div class="grid grid-cols-2 gap-1.5">
+                <button
+                  type="button"
+                  id="btnQuickApiConfig"
+                  class="px-2.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-300 text-xs font-bold transition flex items-center justify-center gap-1"
+                >
+                  🔑 កំណត់ API Key
+                </button>
+                <button
+                  type="button"
+                  id="btnClearPasteBox"
+                  class="px-2.5 py-2 rounded-xl bg-white hover:bg-slate-100 text-slate-700 border border-slate-300 text-xs font-semibold transition"
+                >
+                  🧹 សម្អាតប្រអប់សម្រាប់ Paste ថ្មី
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Inline Standalone API Bar -->
+          <div class="bg-slate-900 text-white rounded-xl p-3 border border-slate-700 flex flex-col md:flex-row md:items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+              <span id="inlineApiDot" class="w-3 h-3 rounded-full bg-amber-400 flex-shrink-0"></span>
+              <div class="text-xs">
+                <span class="font-bold text-amber-300">មុខងារប្រើដាច់ដោយឡែក (Standalone API Mode)៖</span>
+                <span id="inlineApiStatusLabel" class="text-slate-200 ml-1">កំពុងប្រើប្រព័ន្ធឆ្លាតវៃក្នុងកម្មវិធី (Offline Smart Engine) — ភ្ជាប់ Gemini / OpenAI API Key ដើម្បីឱ្យ AI សរសេរខ្លឹមសារមេរៀនគ្រប់ទំព័រដោយស្វ័យប្រវត្តិ!</span>
+              </div>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 flex-shrink-0">
+              <label class="inline-flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer">
+                <input type="checkbox" id="chkAutoCallApiOnPaste" checked class="rounded text-emerald-500 focus:ring-emerald-400" />
+                <span>ហៅ API ស្វ័យប្រវត្តិពេល Paste</span>
+              </label>
+              <button type="button" id="btnOpenApiModalInline" class="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold transition shadow-sm">
+                ⚙️ ភ្ជាប់ / គ្រប់គ្រង API Key
+              </button>
+            </div>
+          </div>
+
+          <!-- Smart Parsed Book Resolution Panel -->
+          <div id="aiStatusBanner" class="bg-white/95 rounded-xl p-3.5 border border-blue-200 shadow-sm space-y-2.5">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <div class="flex items-center gap-2 text-xs font-bold text-blue-950">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                <span id="aiStatusText">បានវិភាគ និងផ្គូផ្គងតាមសៀវភៅផ្លូវការដោយស្វ័យប្រវត្តិ៖</span>
+              </div>
+              <span id="detectedGradeBadge" class="px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 text-xs font-bold">ថ្នាក់ទី៣ • ១ម៉ោងសិក្សា (៤០ នាទី)</span>
+            </div>
+            <div id="parsedBooksBreakdown" class="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs"></div>
+          </div>
+        </div>
+
+        <!-- Preset Cards Grid -->
+        <div class="pt-1">
+          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">មេរៀនស្ដង់ដារក្នុងកម្មវិធីកញ្ចប់គណិតវិទ្យា (ចុចដើម្បីបំពេញភ្លាមៗ)៖</label>
+          <div id="presetCardsContainer" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
+        </div>
+      </div>
+
+      <!-- Studio Split View: Form Left + Live Compact Preview Right -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <!-- Left Column: Detailed Parameter Editor -->
+        <div class="lg:col-span-6 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-5">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <h3 class="text-base font-bold text-slate-900">📝 កែសម្រួលព័ត៌មានកិច្ចតែងការបង្រៀន</h3>
+            <button type="button" id="btnResetDefault" class="text-xs font-semibold text-blue-700 hover:text-blue-900 underline">
+              កំណត់ឡើងវិញតាមគំរូដើម
+            </button>
+          </div>
+
+          <!-- 1. School & Teacher Info -->
+          <div class="space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-blue-900 bg-blue-50 px-3 py-1.5 rounded-lg">១. ព័ត៌មានសាលារៀន និងគ្រូបង្រៀន</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label for="fieldGrade" class="block text-xs font-semibold text-slate-700 mb-1">ថ្នាក់ទី</label>
+                <select id="fieldGrade" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white">
+                  <option value="១">ថ្នាក់ទី១</option>
+                  <option value="២">ថ្នាក់ទី២</option>
+                  <option value="៣" selected>ថ្នាក់ទី៣</option>
+                  <option value="៤">ថ្នាក់ទី៤</option>
+                  <option value="៥">ថ្នាក់ទី៥</option>
+                  <option value="៦">ថ្នាក់ទី៦</option>
+                </select>
+              </div>
+              <div>
+                <label for="fieldTeacher" class="block text-xs font-semibold text-slate-700 mb-1">បង្រៀនដោយ</label>
+                <input id="fieldTeacher" type="text" value="លោកគ្រូ វិចិត្រ សន" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
+              </div>
+              <div>
+                <label for="fieldDuration" class="block text-xs font-semibold text-slate-700 mb-1">រយៈពេល</label>
+                <input id="fieldDuration" type="text" value="១ម៉ោងសិក្សា (៤០ នាទី)" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
+              </div>
+            </div>
+            <div>
+              <label for="fieldSchool" class="block text-xs font-semibold text-slate-700 mb-1">សាលាបឋមសិក្សា និងទីតាំង (កំហិតស្ដង់ដារ)</label>
+              <input id="fieldSchool" type="text" value="ថ្លុកបង្កោ (ភូមិថ្លុកបង្កោ ឃុំផ្ទះរុង ស្រុកភ្នំក្រវាញ ខេត្តពោធិ៍សាត់)" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label for="fieldLunarDate" class="block text-xs font-semibold text-slate-700 mb-1">កាលបរិច្ឆេទពុទ្ធសករាជ (ខាងក្រោម)</label>
+                <input id="fieldLunarDate" type="text" value="ថ្ងៃចន្ទ ៨កើត ខែអស្សុជ ឆ្នាំមមី ព.ស. ២៥៧០" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
+              </div>
+              <div>
+                <label for="fieldSolarDate" class="block text-xs font-semibold text-slate-700 mb-1">ទីតាំង និងថ្ងៃខែឆ្នាំសុរិយគតិ</label>
+                <input id="fieldSolarDate" type="text" value="ថ្លុកបង្កោ, ថ្ងៃទី១៩ ខែតុលា ឆ្នាំ២០២៦" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. Lesson Title & Standard Package Details -->
+          <div class="space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-blue-900 bg-blue-50 px-3 py-1.5 rounded-lg">២. មេរៀន ខ្លឹមសាររង និងសកម្មភាពតាមសៀវភៅស្ដង់ដារ</h4>
+            <div>
+              <label for="fieldMainLesson" class="block text-xs font-semibold text-slate-700 mb-1">មេរៀនទី... (ស្រង់ចេញពីមាតិកាសៀវភៅសិស្ស + ទំព័រ)</label>
+              <input id="fieldMainLesson" type="text" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
+            </div>
+            <div>
+              <label for="fieldSubTopic" class="block text-xs font-semibold text-slate-700 mb-1">ខ្លឹមសាររង (លេខកូដ ជំ./មេ. + ចំណងជើងរង + ទំព័រសៀវភៅណែនាំគ្រូ)</label>
+              <input id="fieldSubTopic" type="text" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
+            </div>
+            <div>
+              <label for="fieldExpectedOutcome" class="block text-xs font-semibold text-slate-700 mb-1">លទ្ធផលរំពឹងទុកទី... (ស្រង់ពីសៀវភៅណែនាំគ្រូ)</label>
+              <input id="fieldExpectedOutcome" type="text" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div class="sm:col-span-2">
+                <label for="fieldActivityTitle" class="block text-xs font-semibold text-slate-700 mb-1">សកម្មភាពទី... និងទំព័រសៀវភៅណែនាំគ្រូ</label>
+                <input id="fieldActivityTitle" type="text" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm" />
+              </div>
+              <div>
+                <label for="fieldStandardLevel" class="block text-xs font-semibold text-slate-700 mb-1">កម្រិតស្ដង់ដារ MCAS</label>
+                <select id="fieldStandardLevel" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white">
+                  <option value="កម្រិតស្ដង់ដារសកម្មភាពទី១">សកម្មភាពទី១ (មូលដ្ឋាន)</option>
+                  <option value="កម្រិតស្ដង់ដារសកម្មភាពទី២">សកម្មភាពទី២ (ពង្រឹង/អនុវត្ត)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Objectives & Materials -->
+          <div class="space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-blue-900 bg-blue-50 px-3 py-1.5 rounded-lg">៣. វត្ថុបំណង និងសម្ភារៈឧបទេស (សម្ភាររូបី)</h4>
+            <div>
+              <label for="fieldObjKnowledge" class="block text-xs font-semibold text-slate-700 mb-1">វិជ្ជាសម្បទា</label>
+              <textarea id="fieldObjKnowledge" rows="2" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"></textarea>
+            </div>
+            <div>
+              <label for="fieldObjSkill" class="block text-xs font-semibold text-slate-700 mb-1">បំណិនសម្បទា</label>
+              <textarea id="fieldObjSkill" rows="2" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"></textarea>
+            </div>
+            <div>
+              <label for="fieldObjAttitude" class="block text-xs font-semibold text-slate-700 mb-1">ចរិយាសម្បទា</label>
+              <textarea id="fieldObjAttitude" rows="2" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"></textarea>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label for="fieldMatTeacher" class="block text-xs font-semibold text-slate-700 mb-1">សម្ភារៈសម្រាប់គ្រូ</label>
+                <textarea id="fieldMatTeacher" rows="2" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"></textarea>
+              </div>
+              <div>
+                <label for="fieldMatStudent" class="block text-xs font-semibold text-slate-700 mb-1">សម្ភារៈសម្រាប់សិស្ស</label>
+                <textarea id="fieldMatStudent" rows="2" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Step 2, Step 3, Misconceptions, Step 4, Step 5 -->
+          <div class="space-y-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-blue-900 bg-blue-50 px-3 py-1.5 rounded-lg">៤. ខ្លឹមសារមេរៀន ល្បែងសិក្សា និងកំហុសភាន់ច្រឡំ (ជំហានទី២-៥)</h4>
+            <div>
+              <label for="fieldStep2Review" class="block text-xs font-semibold text-slate-700 mb-1">ជំហានទី២៖ សំណួររំឭកមេរៀនចាស់ និងទំនាក់ទំនងមេរៀនថ្មី</label>
+              <textarea id="fieldStep2Review" rows="2" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"></textarea>
+            </div>
+            <div>
+              <label for="fieldStep3PairWork" class="block text-xs font-semibold text-slate-700 mb-1">ជំហានទី៣ (ការងារដៃគូ និងការប្រើប្រាស់សម្ភាររូបី)</label>
+              <textarea id="fieldStep3PairWork" rows="3" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"></textarea>
+            </div>
+            <div>
+              <label for="fieldStep3KeyRule" class="block text-xs font-semibold text-slate-700 mb-1">ជំហានទី៣ (វិធានគន្លឹះ / តារាងសំយោគ / ដ្យាក្រាមរបារ Bar Model)</label>
+              <textarea id="fieldStep3KeyRule" rows="3" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"></textarea>
+            </div>
+            <div>
+              <label for="fieldStep3GroupGame" class="block text-xs font-semibold text-slate-700 mb-1">ជំហានទី៣ (ការងារក្រុម និងល្បែងសិក្សាគណិតវិទ្យា)</label>
+              <textarea id="fieldStep3GroupGame" rows="2" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"></textarea>
+            </div>
+            <div class="p-3 rounded-xl bg-rose-50 border border-rose-200">
+              <label for="fieldMisconceptions" class="block text-xs font-bold text-rose-900 mb-1">
+                ⚠️ ៣. កំហុស និងគំនិតភាន់ច្រឡំ (កំហិតដាច់ខាតនៅចុងបញ្ចប់នៃជំហានទី៣ តាមសៀវភៅស្ដង់ដារ MCAS)
+              </label>
+              <textarea id="fieldMisconceptions" rows="3" class="w-full px-3 py-2 rounded-lg border border-rose-300 text-sm bg-white"></textarea>
+            </div>
+            <div>
+              <label for="fieldStep4Practice" class="block text-xs font-semibold text-slate-700 mb-1">ជំហានទី៤៖ លំហាត់ពង្រឹងចំណេះដឹងលើក្ដារឆ្នួន និងបណ្ណសញ្ញាចរាចរ (បៃតង/ក្រហម)</label>
+              <textarea id="fieldStep4Practice" rows="2" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"></textarea>
+            </div>
+            <div>
+              <label for="fieldStep5Homework" class="block text-xs font-semibold text-slate-700 mb-1">ជំហានទី៥៖ កិច្ចការផ្ទះ និងបណ្ដាំផ្ញើ</label>
+              <textarea id="fieldStep5Homework" rows="2" class="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm"></textarea>
+            </div>
+          </div>
+
+          <div class="pt-2 flex flex-wrap gap-2">
+            <button type="button" id="btnSavePlanStudio" class="flex-1 px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold shadow transition">
+              💾 រក្សាទុកកិច្ចតែងការនេះ
+            </button>
+            <button type="button" id="btnGoFullDoc" class="flex-1 px-4 py-2.5 rounded-xl bg-blue-900 hover:bg-blue-800 text-white text-sm font-bold shadow transition">
+              📄 មើលទម្រង់ពេញ (A4) & បោះពុម្ព
+            </button>
+          </div>
+        </div>
+
+        <!-- Right Column: Live Interactive Preview & Quick Audit -->
+        <div class="lg:col-span-6 space-y-4">
+          <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800 text-xs font-bold">ផ្ទាំងបង្ហាញផ្ទាល់ (Live Preview)</span>
+                <span id="liveAuditBadge" class="px-2.5 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-semibold">គោរពតាមស្ដង់ដារ ៨/៨ ចំណុច</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button type="button" id="btnCopyPlanStudio" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold">
+                  📋 ចម្លងអត្ថបទ
+                </button>
+                <button type="button" id="btnViewSlidesFromStudio" class="px-3 py-1.5 rounded-lg bg-indigo-100 hover:bg-indigo-200 text-indigo-900 text-xs font-semibold">
+                  🖥️ មើលស្លាយ ១២ ស្លាយ
+                </button>
+              </div>
+            </div>
+
+            <!-- Mini Preview Container -->
+            <div id="studioPreviewContainer" class="mt-3 max-h-[820px] overflow-y-auto border border-slate-200 rounded-xl p-4 doc-sheet text-xs sm:text-sm"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: FULL OFFICIAL A4 LESSON PLAN DOCUMENT -->
+    <section id="tab-document" class="tab-panel hidden space-y-4">
+      <!-- Toolbar (Hidden when printing) -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 flex flex-wrap items-center justify-between gap-3 no-print">
+        <div class="flex items-center gap-3">
+          <h2 class="text-base font-bold text-slate-900">📄 ទម្រង់កិច្ចតែងការបង្រៀនផ្លូវការ (តារាង ៣ ជួរឈរ)</h2>
+          <label class="inline-flex items-center gap-2 cursor-pointer select-none bg-amber-50 border border-amber-300 px-3 py-1.5 rounded-lg text-xs font-bold text-amber-900">
+            <input type="checkbox" id="toggleInlineEdit" class="rounded text-blue-900 focus:ring-blue-600" />
+            <span>✏️ បើកមុខងារកែសម្រួលផ្ទាល់លើតារាង (Live Edit)</span>
+          </label>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+          <button type="button" id="btnSavePlanDoc" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs sm:text-sm font-bold">
+            💾 រក្សាទុកក្នុងបណ្ណាល័យ
+          </button>
+          <button type="button" id="btnCopyDocHtml" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs sm:text-sm font-semibold">
+            📋 ចម្លងសម្រាប់ដាក់ក្នុង Google Docs
+          </button>
+          <button type="button" id="btnExportWordDoc" class="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-xs sm:text-sm font-bold">
+            📥 ទាញយក Word (.doc)
+          </button>
+          <button type="button" id="btnPrintDoc" class="px-3.5 py-2 rounded-xl bg-blue-900 hover:bg-blue-800 text-white text-xs sm:text-sm font-bold">
+            🖨️ បោះពុម្ព / រក្សាទុកជា PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- Full A4 Sheet -->
+      <div id="fullA4SheetWrapper" class="bg-white rounded-2xl shadow-md border border-slate-300 p-6 sm:p-10 max-w-5xl mx-auto doc-sheet print-only-sheet">
+        <div id="fullLessonPlanSheet"></div>
+      </div>
+    </section>
+
+    <!-- TAB 3: 12 SLIDES & INTERACTIVE MANIPULATIVES -->
+    <section id="tab-slides" class="tab-panel hidden space-y-6 no-print">
+      <!-- Interactive Math Manipulatives Sandbox -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pb-4 border-b border-slate-100">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">🧮 ឧបករណ៍សម្ភាររូបីឌីជីថល និងដ្យាក្រាមរបារ (Interactive Manipulatives & Bar Model)</h2>
+            <p class="text-xs sm:text-sm text-slate-600">កែប្រែតម្លៃលេខខាងក្រោមដើម្បីបង្ហាញសិស្សនៅលើក្ដារខៀន ឬស្លាយបង្រៀន (បាច់បំពង់បឺត បន្ទះតម្លៃខ្ទង់ ដ្យាក្រាមរបារ និងបន្ទាត់ចំនួន)។</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-semibold text-slate-600">បណ្ណសញ្ញាចរាចរវាយតម្លៃ (ជំហានទី៤)៖</span>
+            <button type="button" id="btnTrafficGreen" class="px-3 py-1 rounded-full bg-emerald-600 text-white text-xs font-bold shadow-sm">🟢 បណ្ណបៃតង (ត្រូវ/យល់ស្រប)</button>
+            <button type="button" id="btnTrafficRed" class="px-3 py-1 rounded-full bg-rose-600 text-white text-xs font-bold shadow-sm">🔴 បណ្ណក្រហម (ខុស/មិនយល់ស្រប)</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mt-4">
+          <!-- Bar Model Interactive -->
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-blue-950">📊 ដ្យាក្រាមរបារ (Bar Model — ផ្នែក និងចំនួនសរុប)</h3>
+              <span id="barModelEquation" class="text-xs font-bold px-2.5 py-1 rounded bg-blue-100 text-blue-900">200 + 35 = 235</span>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="inputBarA" class="block text-xs font-semibold text-slate-600 mb-1">ផ្នែកទី១ (ចំនួនទី១)</label>
+                <input id="inputBarA" type="number" min="1" max="1000" value="200" class="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-sm bg-white" />
+              </div>
+              <div>
+                <label for="inputBarB" class="block text-xs font-semibold text-slate-600 mb-1">ផ្នែកទី២ (ចំនួនទី២)</label>
+                <input id="inputBarB" type="number" min="1" max="1000" value="35" class="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-sm bg-white" />
+              </div>
+            </div>
+            <div id="barModelSvgContainer" class="bg-white rounded-lg p-3 border border-slate-200"></div>
+          </div>
+
+          <!-- Place Value & Straw Bundles Interactive -->
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-bold text-blue-950">🧱 តារាងតម្លៃខ្ទង់ និងការបំបែកខ្នាត (រយ/ម៉ែត្រ • ដប់/ដម • រាយ/សម)</h3>
+              <span id="placeValueBadge" class="text-xs font-bold px-2.5 py-1 rounded bg-amber-100 text-amber-900">២ រយ + ៣ ដប់ + ៥ រាយ = 235</span>
+            </div>
+            <div>
+              <label for="inputPlaceNum" class="block text-xs font-semibold text-slate-600 mb-1">បញ្ចូលចំនួន (ពី ១ ដល់ ៩៩៩)</label>
+              <input id="inputPlaceNum" type="number" min="1" max="999" value="235" class="w-full px-3 py-1.5 rounded-lg border border-slate-300 text-sm bg-white" />
+            </div>
+            <div id="placeValueVisualContainer" class="bg-white rounded-lg p-3 border border-slate-200 grid grid-cols-3 gap-2 text-center"></div>
+          </div>
+        </div>
+
+        <div id="trafficCardBanner" class="hidden mt-4 p-3 rounded-xl text-center font-bold text-sm"></div>
+      </div>
+
+      <!-- 12 Slides Generator Preview -->
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-slate-100">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">🖥️ ស្លាយបង្រៀនទាំង ១២ ស្លាយ (12-Slide Classroom Deck)</h2>
+            <p class="text-xs sm:text-sm text-slate-600">រៀបចំដោយស្វ័យប្រវត្តិស្របតាមកិច្ចតែងការបច្ចុប្បន្ន និងសៀវភៅស្ដង់ដារគណិតវិទ្យា (Slide 1 ដល់ Slide 12)។</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" id="btnPrevSlide" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold">◀ ស្លាយមុន</button>
+            <span id="slideCounterLabel" class="text-xs font-bold text-blue-950 px-2">ស្លាយទី 1 / 12</span>
+            <button type="button" id="btnNextSlide" class="px-3 py-1.5 rounded-lg bg-blue-900 hover:bg-blue-800 text-white text-xs font-bold">ស្លាយបន្ទាប់ ▶</button>
+          </div>
+        </div>
+
+        <!-- Active Slide Stage -->
+        <div id="activeSlideStage" class="rounded-2xl bg-gradient-to-br from-blue-950 via-indigo-950 to-slate-900 text-white p-6 sm:p-8 shadow-lg min-h-[300px] flex flex-col justify-between border-2 border-amber-400/70"></div>
+
+        <!-- All 12 Slides Grid -->
+        <div>
+          <h3 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">ទិដ្ឋភាពរួមនៃស្លាយទាំង ១២ (ចុចលើស្លាយណាមួយដើម្បីបង្ហាញធំ)៖</h3>
+          <div id="slidesGridContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: OFFICIAL DIGITAL LIBRARY -->
+    <section id="tab-library" class="tab-panel hidden space-y-6 no-print">
+      <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 pb-4 border-b border-slate-100">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-slate-900">📚 បណ្ណាល័យឌីជីថលផ្លូវការនៃកម្មវិធីកញ្ចប់គណិតវិទ្យា (ថ្នាក់ទី១, ទី២, ទី៣)</h2>
+            <p class="text-xs sm:text-sm text-slate-600 mt-0.5">
+              តំណភ្ជាប់ផ្លូវការទៅកាន់កាលវិភាគកម្មវិធីសិក្សា សៀវភៅសិស្ស សៀវភៅណែនាំគ្រូ សៀវភៅស្ដង់ដារគណិតវិទ្យា (MCAS/STEPCam) និងសៀវភៅជំនួយ/លំហាត់ (MoEYS/UNESCO)។
+            </p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <a href="https://docs.google.com/spreadsheets/d/1YuNw_QbI7ntaHIWZBinAxCKuZGPf_5WZ/edit" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-sm">
+              📅 កាលវិភាគកម្មវិធីសិក្សា (ថ្នាក់ទី១-៦)
+            </a>
+            <a href="https://drive.google.com/drive/folders/1UAeH9A6tV_mY76JIPc9ScyEblEdvbaPH" target="_blank" rel="noopener noreferrer" class="px-3.5 py-2 rounded-xl bg-blue-900 hover:bg-blue-800 text-white text-xs font-bold shadow-sm">
+              📁 ថតឯកសារកញ្ចប់គណិតវិទ្យា ២០២៦ (Drive)
+            </a>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mt-5">
+          <!-- Grade 1 -->
+          <div class="rounded-xl border border-blue-200 bg-blue-50/50 p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-3 py-1 rounded-lg bg-blue-900 text-white text-xs font-bold">ថ្នាក់ទី១ (Grade 1)</span>
+              <span class="text-xs text-blue-800 font-semibold">៨ ឯកសារផ្លូវការ</span>
+            </div>
+            <ul class="space-y-2 text-xs sm:text-sm">
+              <li><a href="https://online.fliphtml5.com/aavfq/eqes/" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-blue-100 border border-blue-100 font-medium text-blue-950 transition"><span>📖 សៀវភៅសិស្សគណិតវិទ្យាថ្នាក់ទី១ (FlipHTML5)</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/1H7b0K5rUcyOkN58E3GSENRymo_BFMfex/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-blue-100 border border-blue-100 font-medium text-blue-950 transition"><span>📘 សៀវភៅណែនាំគ្រូថ្នាក់ទី១</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/1U0yiSKnpFpGRZ7u8GO2dhk0HDnFVRvON/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-300 font-bold text-amber-950 transition"><span>⭐ សៀវភៅស្ដង់ដាគណិតវិទ្យាថ្នាក់ទី១ (MCAS)</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/16erO5AYkq0Vu4TF_wGK7F46CCSj1nlTh/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-blue-100 border border-blue-100 font-medium text-blue-950 transition"><span>📝 សៀវភៅលំហាត់គណិតវិទ្យាថ្នាក់ទី១ (Final)</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/1k5kEGmivsCztxbY2J42EUc-nLAh_Q09u/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-blue-100 border border-blue-100 font-medium text-blue-950 transition"><span>📗 CLM Maths G1 - ភាគ១ (MoEYS/UNESCO)</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/1VvxMX_LqENPU7oUpqvPiDrfTofQRGerL/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-blue-100 border border-blue-100 font-medium text-blue-950 transition"><span>📗 CLM Maths G1 - ភាគ២ (MoEYS/UNESCO)</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/1BO1f_HsEsUfzvPb8e0VNgV_i6BNu-7Zu/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-blue-100 border border-blue-100 font-medium text-blue-950 transition"><span>📗 CLM Maths G1 - ភាគ៣ (MoEYS/UNESCO)</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/1VmePOTbTAx0CasNFo0dhL4fg_Zt8ZXcX/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-blue-100 border border-blue-100 font-medium text-blue-950 transition"><span>📗 CLM Maths G1 - ភាគ៤ (MoEYS/UNESCO)</span><span>↗</span></a></li>
+            </ul>
+          </div>
+
+          <!-- Grade 2 -->
+          <div class="rounded-xl border border-indigo-200 bg-indigo-50/50 p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-3 py-1 rounded-lg bg-indigo-900 text-white text-xs font-bold">ថ្នាក់ទី២ (Grade 2)</span>
+              <span class="text-xs text-indigo-800 font-semibold">៨ ឯកសារផ្លូវការ</span>
+            </div>
+            <ul class="space-y-2 text-xs sm:text-sm">
+              <li><a href="https://online.fliphtml5.com/aavfq/zqks/" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-indigo-100 border border-indigo-100 font-medium text-indigo-950 transition"><span>📖 សៀវភៅសិស្សគណិតវិទ្យាថ្នាក់ទី២ (FlipHTML5)</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/1m-SCvqMKkgUheBCzzkGZ6plMFB-6qQL5/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-indigo-100 border border-indigo-100 font-medium text-indigo-950 transition"><span>📕 សៀវភៅសិស្សគណិតវិទ្យាថ្នាក់ទី២ (PDF)</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/1lUXeCALQIA5bNMcIHy83VIOFY6VjSVT1/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-indigo-100 border border-indigo-100 font-medium text-indigo-950 transition"><span>📘 សៀវភៅណែនាំគ្រូថ្នាក់ទី២</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/1ew3FBanRVMImtUd_9r9uuznCuWZ6mXGF/view?usp=drive_link" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-300 font-bold text-amber-950 transition"><span>⭐ សៀវភៅស្ដង់ដាគណិតវិទ្យាថ្នាក់ទី២ (MCAS)</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/19BwBqi6w6EJfm3HCqV6NAPn_Q9aHDDLk/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-indigo-100 border border-indigo-100 font-medium text-indigo-950 transition"><span>📗 Book 1 Math Grade 2</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/1GW0Gl2XBlsvTjKqqi5M6ib7thZqFZxya/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-indigo-100 border border-indigo-100 font-medium text-indigo-950 transition"><span>📗 Book 2 Math Grade 2</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/1qb7cXJtGvPbyL2n_KX6df_HMy1VUnykF/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-indigo-100 border border-indigo-100 font-medium text-indigo-950 transition"><span>📗 Book 3 Math Grade 2</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/1GgvxSgrPLu5tzWGWNUrR11YJJxynCJgc/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-indigo-100 border border-indigo-100 font-medium text-indigo-950 transition"><span>📗 Book 4 Math Grade 2</span><span>↗</span></a></li>
+            </ul>
+          </div>
+
+          <!-- Grade 3 -->
+          <div class="rounded-xl border border-emerald-200 bg-emerald-50/50 p-4 space-y-3">
+            <div class="flex items-center justify-between">
+              <span class="px-3 py-1 rounded-lg bg-emerald-900 text-white text-xs font-bold">ថ្នាក់ទី៣ (Grade 3)</span>
+              <span class="text-xs text-emerald-800 font-semibold">៨ ឯកសារផ្លូវការ</span>
+            </div>
+            <ul class="space-y-2 text-xs sm:text-sm">
+              <li><a href="https://online.fliphtml5.com/vichit/wdsr/" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-emerald-100 border border-emerald-100 font-medium text-emerald-950 transition"><span>📖 សៀវភៅសិស្សគណិតវិទ្យាថ្នាក់ទី៣ (FlipHTML5)</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/1onERsTwErQWm3l7KerLEsf-2ANmmBMN7/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-emerald-100 border border-emerald-100 font-medium text-emerald-950 transition"><span>📘 សៀវភៅណែនាំគ្រូថ្នាក់ទី៣ (ច្បាប់ទី១)</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/1GUw5zSwonwwbf2wzXYaXSQS8l0r07ZHv/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-emerald-100 border border-emerald-100 font-medium text-emerald-950 transition"><span>📘 Teacher Guide 3 (ច្បាប់ទី២)</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/1Ycw9GFtx4pSB0yq6u8MMopPCjlM8YSHb/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-amber-50 hover:bg-amber-100 border border-amber-300 font-bold text-amber-950 transition"><span>⭐ សៀវភៅជំនួយគណិតវិទ្យាថ្នាក់ទី៣</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/1_uzu37TMQts0RmPM52mrW9L3YZp8dB3H/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-emerald-100 border border-emerald-100 font-medium text-emerald-950 transition"><span>📗 CLM G3 Workbook 1</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/1o5cesRwRZAxpGjXgY5OnR_Lz6yS6ezd2/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-emerald-100 border border-emerald-100 font-medium text-emerald-950 transition"><span>📗 CLM G3 Workbook 2</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/1gwq0kVFUX1hTcl-qYiybcpMeAtjX1Ukc/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-emerald-100 border border-emerald-100 font-medium text-emerald-950 transition"><span>📗 CLM G3 Workbook 3</span><span>↗</span></a></li>
+              <li><a href="https://drive.google.com/file/d/1t0U70AnjSHJVK0s5vSPcUCmNoKq6H9LD/view?usp=drivesdk" target="_blank" rel="noopener noreferrer" class="flex items-center justify-between p-2 rounded-lg bg-white hover:bg-emerald-100 border border-emerald-100 font-medium text-emerald-950 transition"><span>📗 CLM G3 Workbook 4</span><span>↗</span></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: SAVED PLANS & STANDARD AUDITOR -->
+    <section id="tab-saved" class="tab-panel hidden space-y-6 no-print">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Standard Compliance Checklist -->
+        <div class="lg:col-span-5 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-4">
+          <h2 class="text-base font-bold text-slate-900">✅ បញ្ជីផ្ទៀងផ្ទាត់ស្ដង់ដារកញ្ចប់គណិតវិទ្យា (MCAS Audit)</h2>
+          <p class="text-xs text-slate-600">ប្រព័ន្ធត្រួតពិនិត្យដោយស្វ័យប្រវត្តិថាតើកិច្ចតែងការបច្ចុប្បន្នមានគ្រប់ធាតុផ្សំកំហិតនៃកម្មវិធីកញ្ចប់គណិតវិទ្យាឬនៅ៖</p>
+          <ul id="auditChecklistContainer" class="space-y-2.5 text-xs sm:text-sm"></ul>
+        </div>
+
+        <!-- Saved Plans List -->
+        <div class="lg:col-span-7 bg-white rounded-2xl shadow-sm border border-slate-200 p-5 space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+            <div>
+              <h2 class="text-base font-bold text-slate-900">🗂️ បណ្ណាល័យកិច្ចតែងការដែលបានរក្សាទុក</h2>
+              <p class="text-xs text-slate-600">រក្សាទុកក្នុងកម្មវិធីរុករក (Browser Storage) សម្រាប់បើកប្រើប្រាស់ ឬកែសម្រួលពេលក្រោយ។</p>
+            </div>
+            <button type="button" id="btnSaveCurrentInTab5" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold">
+              + រក្សាទុកកិច្ចតែងការបច្ចុប្បន្ន
+            </button>
+          </div>
+          <div id="savedPlansListContainer" class="space-y-3"></div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- STANDALONE API KEY & MODEL SETTINGS MODAL -->
+    <div id="apiSettingsModal" class="fixed inset-0 z-50 hidden bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4 no-print">
+      <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-2xl w-full overflow-hidden animate-fadeIn">
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-blue-950 via-indigo-900 to-slate-900 text-white px-6 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="w-10 h-10 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-bold text-lg shadow">🔑</span>
+            <div>
+              <h3 class="text-base sm:text-lg font-bold">កំណត់ការភ្ជាប់ API Key សម្រាប់ប្រើដាច់ដោយឡែក (Standalone Mode)</h3>
+              <p class="text-xs text-blue-200">រក្សាទុកតែក្នុងកុំព្យូទ័រ/ទូរសព្ទរបស់លោកគ្រូប៉ុណ្ណោះ (Browser LocalStorage) ប្រកបដោយសុវត្ថិភាព ១០០%</p>
+            </div>
+          </div>
+          <button type="button" id="btnCloseApiModal" class="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-bold">✕</button>
+        </div>
+
+        <!-- Modal Body -->
+        <div class="p-6 space-y-4 max-h-[80vh] overflow-y-auto text-xs sm:text-sm">
+          <!-- Provider & Mode Selection -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="selectApiProvider" class="block font-bold text-slate-800 mb-1">១. ជ្រើសរើសក្រុមហ៊ុនផ្ដល់សេវា AI (Provider)</label>
+              <select id="selectApiProvider" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 bg-white font-semibold text-slate-900 focus:ring-2 focus:ring-blue-700">
+                <option value="gemini">Google Gemini API (ណែនាំ • ឥតគិតថ្លៃពី AI Studio)</option>
+                <option value="openai">OpenAI API (ChatGPT / GPT-4o)</option>
+                <option value="openrouter">OpenRouter / Custom Endpoint</option>
+              </select>
+            </div>
+            <div>
+              <label for="selectAiModel" class="block font-bold text-slate-800 mb-1">២. ជ្រើសរើសម៉ូដែល AI (Model)</label>
+              <select id="selectAiModel" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 bg-white font-semibold text-slate-900 focus:ring-2 focus:ring-blue-700">
+                <option value="gemini-2.5-flash">gemini-2.5-flash (លឿនបំផុត & ឆ្លាតវៃ)</option>
+                <option value="gemini-2.5-pro">gemini-2.5-pro (វិភាគស៊ីជម្រៅ)</option>
+                <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+                <option value="gemini-1.5-pro">gemini-1.5-pro</option>
+                <option value="gpt-4o-mini">gpt-4o-mini (OpenAI)</option>
+                <option value="gpt-4o">gpt-4o (OpenAI)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Custom Endpoint (only shown for openrouter/custom) -->
+          <div id="customEndpointWrap" class="hidden">
+            <label for="inputCustomEndpoint" class="block font-bold text-slate-800 mb-1">តំណភ្ជាប់ API Endpoint (OpenAI-Compatible URL)</label>
+            <input id="inputCustomEndpoint" type="text" value="https://openrouter.ai/api/v1/chat/completions" class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-slate-900 font-mono text-xs" />
+          </div>
+
+          <!-- API Key Input -->
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <label for="inputApiKey" class="font-bold text-slate-800">៣. បញ្ចូលលេខកូដ API Key របស់លោកគ្រូ</label>
+              <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-blue-700 hover:underline">
+                ↗ យក Gemini API Key ឥតគិតថ្លៃពី Google AI Studio
+              </a>
+            </div>
+            <div class="flex gap-2">
+              <input
+                id="inputApiKey"
+                type="password"
+                placeholder="បិទភ្ជាប់ API Key នៅទីនេះ (ឧ. AIzaSy... ឬ sk-...)"
+                class="flex-1 px-3.5 py-2.5 rounded-xl border border-slate-300 font-mono text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-700"
+              />
+              <button type="button" id="btnToggleApiKeyVis" class="px-3.5 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold border border-slate-300">
+                👁️ បង្ហាញ
+              </button>
+            </div>
+            <p class="text-[11px] text-slate-500 mt-1">
+              🔒 លេខកូដ API Key ត្រូវបានរក្សាទុកក្នុង <code class="bg-slate-100 px-1 rounded">localStorage</code> នៃឧបករណ៍លោកគ្រូផ្ទាល់ មិនបញ្ជូនទៅម៉ាស៊ីនមេណាផ្សេងឡើយក្រៅពី API ផ្លូវការ។
+            </p>
+          </div>
+
+          <!-- Extra Teacher Context / Textbook Excerpt Optional Input -->
+          <div>
+            <label for="inputCustomInstructions" class="block font-bold text-slate-800 mb-1">
+              ៤. ការណែនាំបន្ថែម ឬអត្ថបទដកស្រង់ពីសៀវភៅគ្រូ (ស្រេចចិត្ត)
+            </label>
+            <textarea
+              id="inputCustomInstructions"
+              rows="2"
+              placeholder="ឧទាហរណ៍៖ សង្កត់ធ្ងន់លើការប្រើបន្ទាត់ម៉ែត្រ និងដ្យាក្រាមរបារ ឬបិទភ្ជាប់លំហាត់ពីសៀវភៅសិស្សបន្ថែម..."
+              class="w-full px-3.5 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm"
+            ></textarea>
+          </div>
+
+          <!-- Test / Status Result Box -->
+          <div id="apiModalTestStatus" class="p-3 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-700 flex items-center justify-between">
+            <span id="apiModalStatusMsg">ស្ថានភាពបច្ចុប្បន្ន៖ មិនទាន់បានភ្ជាប់ API Key (កំពុងប្រើប្រព័ន្ធ Offline Smart Engine)</span>
+            <button type="button" id="btnTestApiKey" class="px-3 py-1.5 rounded-lg bg-indigo-100 hover:bg-indigo-200 text-indigo-950 font-bold transition">
+              🔌 សាកល្បងភ្ជាប់ (Test API)
+            </button>
+          </div>
+
+          <!-- Standalone Download Tip -->
+          <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="text-xs text-amber-950">
+              <p class="font-bold">💻 ចង់យកកម្មវិធីនេះទៅប្រើដាច់ដោយឡែកនៅលើកុំព្យូទ័រ ឬទូរសព្ទមែនទេ?</p>
+              <p class="text-amber-800 mt-0.5">ទាញយកឯកសារ <code class="font-bold">.html</code> តែមួយគត់នេះ រួចបើកក្នុង Chrome/Edge/Safari និងភ្ជាប់ API Key ប្រើបានភ្លាមៗ!</p>
+            </div>
+            <button type="button" id="btnDownloadStandaloneModal" class="px-3.5 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold text-xs whitespace-nowrap shadow-sm">
+              📥 ទាញយកកម្មវិធី (.html)
+            </button>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="bg-slate-50 px-6 py-3.5 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2">
+          <button type="button" id="btnRemoveApiKey" class="px-3.5 py-2 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-800 text-xs font-bold transition">
+            🗑️ លុប API Key (ត្រឡប់ទៅ Offline Mode)
+          </button>
+          <div class="flex items-center gap-2">
+            <button type="button" id="btnCancelApiModal" class="px-4 py-2 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs sm:text-sm font-semibold">
+              បិទផ្ទាំង
+            </button>
+            <button type="button" id="btnSaveApiKey" class="px-5 py-2 rounded-xl bg-blue-900 hover:bg-blue-800 text-white text-xs sm:text-sm font-bold shadow">
+              💾 រក្សាទុក & ភ្ជាប់ API Key
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // =========================================================================
+    // 0. OFFICIAL TEXTBOOK LINKS & COMPLETE TOC DATABASE (GRADES 1, 2, 3)
+    // =========================================================================
+    var GRADE_BOOKS_META = {
+      "១": {
+        studentBookTitle: "សៀវភៅសិស្សគណិតវិទ្យាថ្នាក់ទី១",
+        studentBookUrl: "https://online.fliphtml5.com/aavfq/eqes/",
+        teacherGuideTitle: "សៀវភៅណែនាំគ្រូគណិតវិទ្យាថ្នាក់ទី១",
+        teacherGuideUrl: "https://drive.google.com/file/d/1H7b0K5rUcyOkN58E3GSENRymo_BFMfex/view?usp=drivesdk",
+        standardBookTitle: "សៀវភៅស្ដង់ដាគណិតវិទ្យាថ្នាក់ទី១ (MCAS/STEPCam)",
+        standardBookUrl: "https://drive.google.com/file/d/1U0yiSKnpFpGRZ7u8GO2dhk0HDnFVRvON/view?usp=drive_link",
+        workbookTitle: "សៀវភៅលំហាត់ និងជំនួយគណិតវិទ្យាថ្នាក់ទី១ (CLM MoEYS/UNESCO)",
+        workbookUrl: "https://drive.google.com/file/d/16erO5AYkq0Vu4TF_wGK7F46CCSj1nlTh/view?usp=drivesdk"
+      },
+      "២": {
+        studentBookTitle: "សៀវភៅសិស្សគណិតវិទ្យាថ្នាក់ទី២",
+        studentBookUrl: "https://online.fliphtml5.com/aavfq/zqks/",
+        teacherGuideTitle: "សៀវភៅណែនាំគ្រូគណិតវិទ្យាថ្នាក់ទី២",
+        teacherGuideUrl: "https://drive.google.com/file/d/1lUXeCALQIA5bNMcIHy83VIOFY6VjSVT1/view?usp=drivesdk",
+        standardBookTitle: "សៀវភៅស្ដង់ដាគណិតវិទ្យាថ្នាក់ទី២ (MCAS/STEPCam)",
+        standardBookUrl: "https://drive.google.com/file/d/1ew3FBanRVMImtUd_9r9uuznCuWZ6mXGF/view?usp=drive_link",
+        workbookTitle: "សៀវភៅជំនួយគណិតវិទ្យាថ្នាក់ទី២ (Book 1–4 Math G2)",
+        workbookUrl: "https://drive.google.com/file/d/19BwBqi6w6EJfm3HCqV6NAPn_Q9aHDDLk/view?usp=drivesdk"
+      },
+      "៣": {
+        studentBookTitle: "សៀវភៅសិស្សគណិតវិទ្យាថ្នាក់ទី៣",
+        studentBookUrl: "https://online.fliphtml5.com/vichit/wdsr/",
+        teacherGuideTitle: "សៀវភៅណែនាំគ្រូគណិតវិទ្យាថ្នាក់ទី៣",
+        teacherGuideUrl: "https://drive.google.com/file/d/1onERsTwErQWm3l7KerLEsf-2ANmmBMN7/view?usp=drivesdk",
+        standardBookTitle: "សៀវភៅជំនួយ និងស្ដង់ដារគណិតវិទ្យាថ្នាក់ទី៣ (MCAS/CLM)",
+        standardBookUrl: "https://drive.google.com/file/d/1Ycw9GFtx4pSB0yq6u8MMopPCjlM8YSHb/view?usp=drivesdk",
+        workbookTitle: "សៀវភៅលំហាត់កញ្ចប់គណិតវិទ្យាថ្នាក់ទី៣ (CLM G3 Workbook 1–4)",
+        workbookUrl: "https://drive.google.com/file/d/1_uzu37TMQts0RmPM52mrW9L3YZp8dB3H/view?usp=drivesdk"
+      },
+      "៤": {
+        studentBookTitle: "សៀវភៅសិស្សគណិតវិទ្យាថ្នាក់ទី៤ (MoEYS)",
+        studentBookUrl: "https://docs.google.com/spreadsheets/d/1YuNw_QbI7ntaHIWZBinAxCKuZGPf_5WZ/edit",
+        teacherGuideTitle: "សៀវភៅណែនាំគ្រូគណិតវិទ្យាថ្នាក់ទី៤",
+        teacherGuideUrl: "https://drive.google.com/drive/folders/1UAeH9A6tV_mY76JIPc9ScyEblEdvbaPH",
+        standardBookTitle: "កម្មវិធីសិក្សា និងសៀវភៅគោលគណិតវិទ្យាថ្នាក់ទី៤",
+        standardBookUrl: "https://docs.google.com/spreadsheets/d/1YuNw_QbI7ntaHIWZBinAxCKuZGPf_5WZ/edit",
+        workbookTitle: "សៀវភៅជំនួយ និងលំហាត់គណិតវិទ្យាថ្នាក់ទី៤",
+        workbookUrl: "https://drive.google.com/drive/folders/1UAeH9A6tV_mY76JIPc9ScyEblEdvbaPH"
+      },
+      "៥": {
+        studentBookTitle: "សៀវភៅសិស្សគណិតវិទ្យាថ្នាក់ទី៥ (MoEYS)",
+        studentBookUrl: "https://docs.google.com/spreadsheets/d/1YuNw_QbI7ntaHIWZBinAxCKuZGPf_5WZ/edit",
+        teacherGuideTitle: "សៀវភៅណែនាំគ្រូគណិតវិទ្យាថ្នាក់ទី៥",
+        teacherGuideUrl: "https://drive.google.com/drive/folders/1UAeH9A6tV_mY76JIPc9ScyEblEdvbaPH",
+        standardBookTitle: "កម្មវិធីសិក្សា និងសៀវភៅគោលគណិតវិទ្យាថ្នាក់ទី៥",
+        standardBookUrl: "https://docs.google.com/spreadsheets/d/1YuNw_QbI7ntaHIWZBinAxCKuZGPf_5WZ/edit",
+        workbookTitle: "សៀវភៅជំនួយ និងលំហាត់គណិតវិទ្យាថ្នាក់ទី៥",
+        workbookUrl: "https://drive.google.com/drive/folders/1UAeH9A6tV_mY76JIPc9ScyEblEdvbaPH"
+      },
+      "៦": {
+        studentBookTitle: "សៀវភៅសិស្សគណិតវិទ្យាថ្នាក់ទី៦ (MoEYS)",
+        studentBookUrl: "https://docs.google.com/spreadsheets/d/1YuNw_QbI7ntaHIWZBinAxCKuZGPf_5WZ/edit",
+        teacherGuideTitle: "សៀវភៅណែនាំគ្រូគណិតវិទ្យាថ្នាក់ទី៦",
+        teacherGuideUrl: "https://drive.google.com/drive/folders/1UAeH9A6tV_mY76JIPc9ScyEblEdvbaPH",
+        standardBookTitle: "កម្មវិធីសិក្សា និងសៀវភៅគោលគណិតវិទ្យាថ្នាក់ទី៦",
+        standardBookUrl: "https://docs.google.com/spreadsheets/d/1YuNw_QbI7ntaHIWZBinAxCKuZGPf_5WZ/edit",
+        workbookTitle: "សៀវភៅជំនួយ និងលំហាត់គណិតវិទ្យាថ្នាក់ទី៦",
+        workbookUrl: "https://drive.google.com/drive/folders/1UAeH9A6tV_mY76JIPc9ScyEblEdvbaPH"
+      }
+    };
+
+    // Complete Official Student Book TOC for Grades 1, 2, 3
+    var OFFICIAL_TOC_DB = [
+      // Grade 1 (ថ្នាក់ទី១)
+      { grade: "១", lesson: 1, title: "ទំហំ", pStart: 1, pEnd: 2 },
+      { grade: "១", lesson: 2, title: "ទីតាំង", pStart: 3, pEnd: 5 },
+      { grade: "១", lesson: 3, title: "ចំនួន ០ ដល់ ១០", pStart: 6, pEnd: 9 },
+      { grade: "១", lesson: 4, title: "ចំនួន ១ ដល់ ១០", pStart: 10, pEnd: 15 },
+      { grade: "១", lesson: 5, title: "ការប្រៀបធៀបចំនួន", pStart: 16, pEnd: 21 },
+      { grade: "១", lesson: 6, title: "វិធីបូក និងវិធីដក", pStart: 22, pEnd: 26 },
+      { grade: "១", lesson: 7, title: "វិធីបូក និងវិធីដកចំនួនដែលមានលេខ ១ខ្ទង់", pStart: 27, pEnd: 45 },
+      { grade: "១", lesson: 8, title: "ចំណែក", pStart: 46, pEnd: 47 },
+      { grade: "១", lesson: 9, title: "ធរណីមាត្រ", pStart: 48, pEnd: 52 },
+      { grade: "១", lesson: 10, title: "ចំនួន ១០ ដល់ ២០", pStart: 53, pEnd: 55 },
+      { grade: "១", lesson: 11, title: "វិធីដក វិធីបូកចំនួនដល់ ២០", pStart: 56, pEnd: 63 },
+      { grade: "១", lesson: 12, title: "ប្រវែង", pStart: 64, pEnd: 67 },
+      { grade: "១", lesson: 13, title: "ទម្ងន់", pStart: 67, pEnd: 69 },
+      { grade: "១", lesson: 14, title: "ចំណុះ", pStart: 70, pEnd: 72 },
+      { grade: "១", lesson: 15, title: "ពេលវេលា", pStart: 73, pEnd: 77 },
+      { grade: "១", lesson: 16, title: "ក្រាបរូបភាព", pStart: 78, pEnd: 80 },
+      { grade: "១", lesson: 17, title: "ចំនួន និងតម្លៃលេខតាមខ្ទង់", pStart: 81, pEnd: 88 },
+      { grade: "១", lesson: 18, title: "រូបិយវត្ថុ", pStart: 89, pEnd: 90 },
+      { grade: "១", lesson: 19, title: "លំនាំគំរូ", pStart: 91, pEnd: 92 },
+
+      // Grade 2 (ថ្នាក់ទី២)
+      { grade: "២", lesson: 1, title: "ចំនួនដល់ ១ ០០០", pStart: 1, pEnd: 12 },
+      { grade: "២", lesson: 2, title: "ការប្រៀបធៀបចំនួន", pStart: 13, pEnd: 18 },
+      { grade: "២", lesson: 3, title: "វិធីបូកចំនួនមានលេខ ២ខ្ទង់", pStart: 19, pEnd: 26 },
+      { grade: "២", lesson: 4, title: "វិធីដកចំនួនមានលេខ ២ខ្ទង់", pStart: 27, pEnd: 34 },
+      { grade: "២", lesson: 5, title: "វិធីគុណ", pStart: 35, pEnd: 44 },
+      { grade: "២", lesson: 6, title: "ប្រភាគ", pStart: 45, pEnd: 48 },
+      { grade: "២", lesson: 7, title: "វិធីចែក", pStart: 49, pEnd: 56 },
+      { grade: "២", lesson: 8, title: "ប្រវែង", pStart: 57, pEnd: 60 },
+      { grade: "២", lesson: 9, title: "ទម្ងន់", pStart: 61, pEnd: 64 },
+      { grade: "២", lesson: 10, title: "ចំណុះ", pStart: 65, pEnd: 68 },
+      { grade: "២", lesson: 11, title: "វិធីបូកចំនួនមានលេខ ៣ខ្ទង់", pStart: 69, pEnd: 76 },
+      { grade: "២", lesson: 12, title: "វិធីដកចំនួនមានលេខ ៣ខ្ទង់នឹង ២ខ្ទង់", pStart: 77, pEnd: 84 },
+      { grade: "២", lesson: 13, title: "រូបិយវត្ថុ", pStart: 85, pEnd: 88 },
+      { grade: "២", lesson: 14, title: "ធរណីមាត្រ", pStart: 89, pEnd: 96 },
+      { grade: "២", lesson: 15, title: "ពេលវេលា", pStart: 97, pEnd: 102 },
+      { grade: "២", lesson: 16, title: "ទិន្នន័យ", pStart: 103, pEnd: 106 },
+      { grade: "២", lesson: 17, title: "លំនាំគំរូ", pStart: 107, pEnd: 108 },
+
+      // Grade 3 (ថ្នាក់ទី៣)
+      { grade: "៣", lesson: 1, title: "ចំនួនដល់ ១០ ០០០", pStart: 1, pEnd: 10 },
+      { grade: "៣", lesson: 2, title: "ទម្ងន់", pStart: 11, pEnd: 14 },
+      { grade: "៣", lesson: 3, title: "វិធីបូក", pStart: 15, pEnd: 28 },
+      { grade: "៣", lesson: 4, title: "រូបិយវត្ថុ", pStart: 29, pEnd: 32 },
+      { grade: "៣", lesson: 5, title: "ប្រវែង", pStart: 33, pEnd: 36 },
+      { grade: "៣", lesson: 6, title: "វិធីដក", pStart: 37, pEnd: 50 },
+      { grade: "៣", lesson: 7, title: "មាឌ និងចំណុះ", pStart: 51, pEnd: 54 },
+      { grade: "៣", lesson: 8, title: "ពេលវេលា", pStart: 55, pEnd: 60 },
+      { grade: "៣", lesson: 9, title: "វិធីគុណ", pStart: 61, pEnd: 76 },
+      { grade: "៣", lesson: 10, title: "ធរណីមាត្រ", pStart: 77, pEnd: 84 },
+      { grade: "៣", lesson: 11, title: "វិធីចែក", pStart: 85, pEnd: 98 },
+      { grade: "៣", lesson: 12, title: "ប្រភាគ", pStart: 99, pEnd: 102 },
+      { grade: "៣", lesson: 13, title: "ក្រាបរូបភាព លំនាំគំរូ ឱកាស", pStart: 103, pEnd: 108 },
+
+      // Grade 4 (ថ្នាក់ទី៤ - ១៧ មេរៀន)
+      { grade: "៤", lesson: 1, title: "ចំនួន", pStart: 1, pEnd: 6 },
+      { grade: "៤", lesson: 2, title: "ប្រភាគ", pStart: 7, pEnd: 12 },
+      { grade: "៤", lesson: 3, title: "វិធីបូក", pStart: 13, pEnd: 22 },
+      { grade: "៤", lesson: 4, title: "រូបធរណីមាត្រ", pStart: 23, pEnd: 28 },
+      { grade: "៤", lesson: 5, title: "ទម្ងន់", pStart: 29, pEnd: 34 },
+      { grade: "៤", lesson: 6, title: "វិធីដក", pStart: 35, pEnd: 44 },
+      { grade: "៤", lesson: 7, title: "រូបិយវត្ថុ", pStart: 45, pEnd: 50 },
+      { grade: "៤", lesson: 8, title: "វិធីគុណ", pStart: 51, pEnd: 60 },
+      { grade: "៤", lesson: 9, title: "វិធីចែក", pStart: 61, pEnd: 70 },
+      { grade: "៤", lesson: 10, title: "ពេលវេលា", pStart: 71, pEnd: 78 },
+      { grade: "៤", lesson: 11, title: "ប្រវែង", pStart: 79, pEnd: 82 },
+      { grade: "៤", lesson: 12, title: "ចំនួនទសភាគ", pStart: 83, pEnd: 90 },
+      { grade: "៤", lesson: 13, title: "វិធីបូកចំនួនទសភាគ", pStart: 91, pEnd: 100 },
+      { grade: "៤", lesson: 14, title: "វិធីដកចំនួនទសភាគ", pStart: 101, pEnd: 110 },
+      { grade: "៤", lesson: 15, title: "មុំ", pStart: 111, pEnd: 114 },
+      { grade: "៤", lesson: 16, title: "បន្ទាត់កែង និងបន្ទាត់ស្រប", pStart: 115, pEnd: 120 },
+      { grade: "៤", lesson: 17, title: "ស្ថិតិ", pStart: 121, pEnd: 128 },
+
+      // Grade 5 (ថ្នាក់ទី៥ - ១៨ មេរៀន)
+      { grade: "៥", lesson: 1, title: "ចំនួន", pStart: 1, pEnd: 4 },
+      { grade: "៥", lesson: 2, title: "វិធីគុណ", pStart: 5, pEnd: 14 },
+      { grade: "៥", lesson: 3, title: "វិធីចែក", pStart: 15, pEnd: 20 },
+      { grade: "៥", lesson: 4, title: "ប្រមាណវិធីមានវង់ក្រចក", pStart: 21, pEnd: 24 },
+      { grade: "៥", lesson: 5, title: "ផលធៀប និងភាគរយ", pStart: 25, pEnd: 30 },
+      { grade: "៥", lesson: 6, title: "ស្ថិតិ", pStart: 31, pEnd: 40 },
+      { grade: "៥", lesson: 7, title: "ចំនួនចម្រុះ", pStart: 41, pEnd: 44 },
+      { grade: "៥", lesson: 8, title: "ចំនួនទសភាគ", pStart: 45, pEnd: 48 },
+      { grade: "៥", lesson: 9, title: "វិធីបូក វិធីដកចំនួនទសភាគ", pStart: 49, pEnd: 62 },
+      { grade: "៥", lesson: 10, title: "វិធីគុណចំនួនទសភាគ", pStart: 63, pEnd: 68 },
+      { grade: "៥", lesson: 11, title: "ប្រភាគ", pStart: 69, pEnd: 84 },
+      { grade: "៥", lesson: 12, title: "រូបិយវត្ថុ", pStart: 85, pEnd: 88 },
+      { grade: "៥", lesson: 13, title: "រង្វាស់ប្រវែង", pStart: 89, pEnd: 94 },
+      { grade: "៥", lesson: 14, title: "រង្វាស់ទម្ងន់", pStart: 95, pEnd: 98 },
+      { grade: "៥", lesson: 15, title: "រង្វាស់ចំណុះ", pStart: 99, pEnd: 102 },
+      { grade: "៥", lesson: 16, title: "រង្វាស់ពេល", pStart: 103, pEnd: 106 },
+      { grade: "៥", lesson: 17, title: "ធរណីមាត្រ", pStart: 107, pEnd: 120 },
+      { grade: "៥", lesson: 18, title: "ប្លង់ ផែនទី និងមាត្រដ្ឋាន", pStart: 121, pEnd: 128 },
+
+      // Grade 6 (ថ្នាក់ទី៦ - ២០ មេរៀន)
+      { grade: "៦", lesson: 1, title: "ចំនួន", pStart: 1, pEnd: 4 },
+      { grade: "៦", lesson: 2, title: "ចំនួនទសភាគ", pStart: 5, pEnd: 8 },
+      { grade: "៦", lesson: 3, title: "វិធីបូក និងវិធីដកចំនួនទសភាគ", pStart: 9, pEnd: 16 },
+      { grade: "៦", lesson: 4, title: "កន្លះបន្ទាត់ពុះមុំ និងសំណង់មុំ", pStart: 17, pEnd: 24 },
+      { grade: "៦", lesson: 5, title: "ការជំនួសលេខដោយអក្សរ", pStart: 25, pEnd: 30 },
+      { grade: "៦", lesson: 6, title: "បរិមាត្រ", pStart: 31, pEnd: 35 },
+      { grade: "៦", lesson: 7, title: "ផ្ទៃក្រឡា", pStart: 36, pEnd: 41 },
+      { grade: "៦", lesson: 8, title: "វិធីគុណ និងវិធីចែកចំនួនទសភាគ", pStart: 42, pEnd: 54 },
+      { grade: "៦", lesson: 9, title: "តួចែករួមធំបំផុត ពហុគុណរួមតូចបំផុត", pStart: 55, pEnd: 62 },
+      { grade: "៦", lesson: 10, title: "វិធីបូក និងវិធីដកប្រភាគ", pStart: 63, pEnd: 78 },
+      { grade: "៦", lesson: 11, title: "វិធីគុណ និងវិធីចែកប្រភាគ", pStart: 79, pEnd: 86 },
+      { grade: "៦", lesson: 12, title: "ផលធៀប", pStart: 87, pEnd: 90 },
+      { grade: "៦", lesson: 13, title: "សមាមាត្រ", pStart: 91, pEnd: 94 },
+      { grade: "៦", lesson: 14, title: "ល្បឿន", pStart: 95, pEnd: 98 },
+      { grade: "៦", lesson: 15, title: "ប្រមាណវិធីលើចំនួនចម្រុះ", pStart: 99, pEnd: 110 },
+      { grade: "៦", lesson: 16, title: "ភាគរយ", pStart: 111, pEnd: 114 },
+      { grade: "៦", lesson: 17, title: "ការប្រាក់", pStart: 115, pEnd: 118 },
+      { grade: "៦", lesson: 18, title: "ស្ថិតិ", pStart: 119, pEnd: 126 },
+      { grade: "៦", lesson: 19, title: "ប្រមាណវិធីលើរង្វាស់ពេល", pStart: 127, pEnd: 130 },
+      { grade: "៦", lesson: 20, title: "មាឌ និងផ្ទៃក្រឡាសូលីត", pStart: 131, pEnd: 138 }
+    ];
+
+    function khmerToArabicInt(str) {
+      if (!str) return null;
+      var map = { "០": "0", "១": "1", "២": "2", "៣": "3", "៤": "4", "៥": "5", "៦": "6", "៧": "7", "៨": "8", "៩": "9" };
+      var norm = String(str).replace(/[០-៩]/g, function (c) { return map[c] || c; });
+      var m = norm.match(/\d+/);
+      return m ? parseInt(m[0], 10) : null;
+    }
+
+    function intToKhmer(num) {
+      if (num === null || num === undefined || isNaN(num)) return "";
+      var map = ["០", "១", "២", "៣", "៤", "៥", "៦", "៧", "៨", "៩"];
+      return String(num).replace(/\d/g, function (d) { return map[parseInt(d, 10)]; });
+    }
+
+    // =========================================================================
+    // 1. OFFICIAL CURRICULUM PRESETS (GRADES 1, 2, 3 - MoEYS / STEPCam / MCAS)
+    // =========================================================================
+    var LESSON_PRESETS = [
+      {
+        id: "g3-len-convert",
+        grade: "៣",
+        duration: "១ម៉ោងសិក្សា (៤០ នាទី)",
+        mainLesson: "មេរៀនទី៥៖ ប្រវែង (សស. ទំព័រ ៣៦)",
+        subTopic: "ខ្លឹមសាររង៖ ជំ.៥ មេ.១ (មេ. ៥.១) ការប្តូរខ្នាតប្រវែង (ស.គ្រូ ទំព័រ ២៥៧-២៥៨)",
+        expectedOutcome: "លទ្ធផលរំពឹងទុកទី៤៖ សិស្សប្តូរខ្នាតប្រវែងរវាង ម៉ែត្រ (ម) ដេស៊ីម៉ែត្រ (ដម) សង់ទីម៉ែត្រ (សម) និងមីលីម៉ែត្រ (មម) បានត្រឹមត្រូវ។",
+        activityTitle: "សកម្មភាពទី៨៖ ការប្តូរខ្នាតប្រវែង ទំព័រ ២៥៧-២៥៨ (សៀវភៅណែនាំគ្រូ បោះពុម្ពឆ្នាំ២០២៤)",
+        standardLevel: "កម្រិតស្ដង់ដារសកម្មភាពទី២",
+        objKnowledge: "សិស្សប្រាប់បានពីទំនាក់ទំនងរវាងខ្នាតប្រវែង (១ ម = ១០ ដម = ១០០ សម, ១ ដម = ១០ សម, ១ សម = ១០ មម) និងវិធាននៃការប្តូរខ្នាតប្រវែងបានត្រឹមត្រូវតាមរយៈការបង្ហាញបន្ទាត់ម៉ែត្រ និងតារាងខ្នាតប្រវែងរបស់គ្រូ។",
+        objSkill: "សិស្សអនុវត្តប្តូរខ្នាតប្រវែងពីខ្នាតធំទៅខ្នាតតូច និងពីខ្នាតតូចទៅខ្នាតធំ (ឧ. ៣ ម = ៣០០ សម, ៥ ដម = ៥០ សម, ២ ម ៣៥ សម = ២៣៥ សម, ៤០០ សម = ៤ ម) លើក្ដារឆ្នួន និងសៀវភៅសិស្សទំព័រ ៣៦ បានត្រឹមត្រូវតាមរយៈការងារដៃគូ ក្រុម និងបុគ្គល។",
+        objAttitude: "សិស្សមានទំនុកចិត្ត ស្មារតីសហការ និងភាពផ្ចិតផ្ចង់ក្នុងការវាស់វែង និងប្តូរខ្នាតប្រវែងវត្ថុប្រើប្រាស់នៅក្នុងជីវភាពប្រចាំថ្ងៃនៅភូមិថ្លុកបង្កោបានត្រឹមត្រូវ។",
+        matTeacher: "សៀវភៅណែនាំគ្រូថ្នាក់ទី៣ (ទំព័រ ២៥៧-២៥៨), សៀវភៅសិស្សគណិតវិទ្យាថ្នាក់ទី៣ (ទំព័រ ៣៦), សៀវភៅជំនួយថ្នាក់ទី៣, បន្ទាត់ឈើប្រវែង ១ ម៉ែត្រ (1 m), បន្ទាត់ក្រិតដេស៊ីម៉ែត្រ និងសង់ទីម៉ែត្រ, តារាងទំនាក់ទំនងខ្នាតប្រវែង, បណ្ណសញ្ញាចរាចរ (បៃតង/ក្រហម)។",
+        matStudent: "ក្ដារឆ្នួន ហ្វឺត/ដីស សៀវភៅសិស្សថ្នាក់ទី៣ (ទំព័រ ៣៦) បន្ទាត់ក្រិតសង់ទីម៉ែត្រ (២០ សម ឬ ៣០ សម) សៀវភៅជំនួយ និងបណ្ណសញ្ញាពណ៌។",
+        step2Review: "សួរសំណួររំឭកមេរៀនមុន (ទំព័រ ៣៣-៣៥)៖ តើបន្ទាត់ខ្លីរបស់កូនមានក្រិតខ្នាតអ្វីខ្លះ? តើ ១ ដេស៊ីម៉ែត្រ (១ តឹក) ស្មើនឹងប៉ុន្មានសង់ទីម៉ែត្រ (ហ៊ុន)? (១ ដម = ១០ សម)។ ចុះបើក្ដារខៀនមានប្រវែង ២ ម៉ែត្រ តើស្មើនឹងប៉ុន្មានសង់ទីម៉ែត្រ? គ្រូភ្ជាប់ទៅមេរៀនថ្មី «ការប្តូរខ្នាតប្រវែង (សកម្មភាពទី៨ ទំព័រ ២៥៧-២៥៨)»។",
+        step3PairWork: "គ្រូបង្ហាញបន្ទាត់ម៉ែត្រ (១ ម) ផ្ទៀបជាមួយបន្ទាត់ដេស៊ីម៉ែត្រ និងសង់ទីម៉ែត្រ (សកម្មភាពទី៨ ស.គ្រូ ទំព័រ ២៥៧-២៥៨)។ សិស្សចាប់ដៃគូសង្កេតរាប់គំនូសក្រិតលើបន្ទាត់ និងសៀវភៅសិស្សទំព័រ ៣៦ រកឃើញថា៖ ក្នុង ១ ម៉ែត្រ មាន ១០ ដេស៊ីម៉ែត្រ (១០ តឹក) ហើយក្នុង ១ ដេស៊ីម៉ែត្រ មាន ១០ សង់ទីម៉ែត្រ (១០ ហ៊ុន) ដូចនេះ ១ ម៉ែត្រ = ១០០ សង់ទីម៉ែត្រ។ ដៃគូសិស្សអនុវត្តបំបែកខ្នាតចម្រុះ ២ ម ៣៥ សម = ២០០ សម + ៣៥ សម = ២៣៥ សម។",
+        step3KeyRule: "• ទំនាក់ទំនងខ្នាតប្រវែងផ្លូវការ (សស. ទំព័រ ៣៦ & ស.គ្រូ ទំព័រ ២៥៧-២៥៨)៖\n  - ១ សង់ទីម៉ែត្រ (សម / cm) = ១០ មីលីម៉ែត្រ (មម / mm) [១ ហ៊ុន = ១០ លី]\n  - ១ ដេស៊ីម៉ែត្រ (ដម / dm) = ១០ សង់ទីម៉ែត្រ (សម / cm) [១ តឹក = ១០ ហ៊ុន]\n  - ១ ម៉ែត្រ (ម / m) = ១០ ដេស៊ីម៉ែត្រ (ដម) = ១០០ សង់ទីម៉ែត្រ (សម)\n• លំហាត់គំរូ៖ ៣ ម = ៣០០ សម ; ៥ ដម = ៥០ សម ; ២ ម ៣៥ សម = ២៣៥ សម ; ៤០០ សម = ៤ ម ; ១៦០ សម = ១ ម ៦០ សម។",
+        step3GroupGame: "ល្បែងសិក្សា «ផ្គូផ្គងបណ្ណខ្នាតប្រវែងស្មើគ្នា (កន្ត្រៃមាសប្តូរខ្នាត)»៖ ក្រុមសិស្សទទួលបណ្ណប្រវែង (២ ម, ៣ ដម, ១ ម ២៥ សម, ៥០០ សម) រួចប្រណាំងគ្នាផ្គូផ្គងទៅនឹងបណ្ណចម្លើយ (២០០ សម, ៣០ សម, ១២៥ សម, ៥ ម) និងដោះស្រាយលំហាត់ក្នុងសៀវភៅសិស្សទំព័រ ៣៦។",
+        misconceptions: "• សិស្សភាន់ច្រឡំទំនាក់ទំនងរវាង ម៉ែត្រ និងសង់ទីម៉ែត្រ ដោយគិតថា ១ ម = ១០ សម (ច្រឡំជាមួយ ១ ដម = ១០ សម) នាំឱ្យប្តូរ ៣ ម = ៣០ សម ជំនួសឱ្យ ៣០០ សម។\n• នៅពេលប្តូរខ្នាតចម្រុះ (ឧ. ២ ម ៥ សម គិតជា សម) សិស្សភ្លេចដាក់លេខ ០ នៅខ្ទង់ដប់ ដោយសរសេរ ២៥ សម ជំនួសឱ្យ ២០៥ សម។\n• វិធីជួយកែតម្រូវ (Remedial Support)៖ គ្រូឱ្យសិស្សប្រើតារាងខ្នាតប្រវែង (ម | ដម | សម | មម) និងបង្ហាញបន្ទាត់ម៉ែត្រជាក់ស្ដែងដើម្បីបំបែក ២ ម = ២០០ សម រួចបូក ៥ សម បាន ២០៥ សម។",
+        step4Practice: "ឱ្យសិស្សគណនាលើក្ដារឆ្នួន (ស្រង់ពីសៀវភៅសិស្សទំព័រ ៣៦)៖ ក) ៤ ម = [...] សម (៤០០ សម) ខ) ៦០ សម = [...] ដម (៦ ដម) គ) ១ ម ៤៥ សម = [...] សម (១៤៥ សម) ឃ) ៣០០ សម = [...] ម (៣ ម) រួចលើកក្ដារឆ្នួន និងបណ្ណសញ្ញាចរាចរ (បៃតង/ក្រហម)។",
+        step5Homework: "ឱ្យសិស្សធ្វើលំហាត់ដែលនៅសល់ក្នុងសៀវភៅសិស្សទំព័រ ៣៦ ចូលក្នុងសៀវភៅសរសេរ និងវាស់ប្រវែងតុ ឬកន្ទេលនៅផ្ទះគិតជាម៉ែត្រ និងសង់ទីម៉ែត្រ។",
+        barA: 200,
+        barB: 35,
+        placeNum: 235
+      },
+      {
+        id: "g3-geo-points",
+        grade: "១",
+        duration: "១ម៉ោងសិក្សា (៤០ នាទី)",
+        mainLesson: "មេរៀនទី៩៖ ធរណីមាត្រ (សស. ទំព័រ ៤៨)",
+        subTopic: "ខ្លឹមសាររង៖ ជំ.៣ មេ.១ (មេ. ៣.១) ចំណុច បន្ទាត់ ខ្សែកោង ខ្សែកាច់ (ស.គ្រូ ទំព័រ ២៨៣)",
+        expectedOutcome: "លទ្ធផលរំពឹងទុកទី១៖ សិស្សកំណត់បាននូវចំណុច បន្ទាត់ ខ្សែកោង និងខ្សែកាច់បានត្រឹមត្រូវ។",
+        activityTitle: "សកម្មភាពទី១៖ ការស្គាល់ចំណុច បន្ទាត់ ខ្សែកោង និងខ្សែកាច់ ទំព័រ ២៨៣ (សៀវភៅណែនាំគ្រូ បោះពុម្ពឆ្នាំ២០២៤)",
+        standardLevel: "កម្រិតស្ដង់ដារសកម្មភាពទី១",
+        objKnowledge: "សិស្សប្រាប់បានពីនិយមន័យ និងលក្ខណៈសម្គាល់នៃចំណុច បន្ទាត់ ខ្សែកោង និងខ្សែកាច់ បានត្រឹមត្រូវតាមរយៈការបង្ហាញរូបភាព និងវត្ថុជាក់ស្ដែងរបស់គ្រូ។",
+        objSkill: "សិស្សគូស និងញែកសម្គាល់ចំណុច បន្ទាត់ ខ្សែកោង និងខ្សែកាច់ ដោយប្រើបន្ទាត់ និងខ្មៅដៃបានត្រឹមត្រូវតាមរយៈការងារដៃគូ ក្រុម និងបុគ្គល។",
+        objAttitude: "សិស្សមានទំនុកចិត្ត ស្មារតីសហការ និងភាពផ្ចិតផ្ចង់ក្នុងការសង្កេតរូបរាងធរណីមាត្រនៃវត្ថុប្រើប្រាស់នៅក្នុងជីវភាពប្រចាំថ្ងៃបានត្រឹមត្រូវ។",
+        matTeacher: "បន្ទាត់វែង ខ្សែពួរ/ខ្សែអំបោះ បណ្ណរូបភាពធរណីមាត្រ (ចំណុច បន្ទាត់ ខ្សែកោង ខ្សែកាច់) បណ្ណសញ្ញាចរាចរ (បៃតង/ក្រហម) សៀវភៅណែនាំគ្រូទំព័រ ២៨៣។",
+        matStudent: "ក្ដារឆ្នួន ហ្វឺត/ដីស សៀវភៅសិស្សទំព័រ ៤៨ បន្ទាត់ ខ្មៅដៃ និងបណ្ណសញ្ញាពណ៌។",
+        step2Review: "សួរសំណួររំឭក៖ តើវត្ថុអ្វីខ្លះនៅក្នុងថ្នាក់រៀនយើងដែលមានរាងត្រង់ដូចបន្ទាត់? គ្រូបង្ហាញខ្សែអំបោះទាញតឹង និងបន្ធូរ រួចភ្ជាប់ទៅមេរៀនថ្មី «ចំណុច បន្ទាត់ ខ្សែកោង ខ្សែកាច់»។",
+        step3PairWork: "គ្រូបង្ហាញសកម្មភាពចុចចុងហ្វឺតលើក្ដារខៀន (បង្កើតបានជាចំណុច A, B) ការទាញខ្សែអំបោះឱ្យតឹង (បន្ទាត់) ការបន្ធូរខ្សែអំបោះ (ខ្សែកោង) និងការបត់បំពង់បឺតជាជ្រុងតភ្ជាប់គ្នា (ខ្សែកាច់)។ សិស្សចាប់ដៃគូសង្កេតសៀវភៅសិស្សទំព័រ ៤៨ និងពិភាក្សាពីភាពខុសគ្នា។",
+        step3KeyRule: "• ចំណុច៖ ស្នាមចុចតូចមួយលើផ្ទៃរាប (តាងដោយអក្សរធំ A, B, C)។\n• បន្ទាត់៖ ខ្សែត្រង់ដែលអាចបន្តទៅសងខាងឥតឈប់។\n• ខ្សែកោង៖ ខ្សែដែលមិនត្រង់ (កោង)។\n• ខ្សែកាច់៖ ខ្សែដែលផ្គុំឡើងដោយអង្កត់ត្រង់ច្រើនតភ្ជាប់គ្នាបន្តបន្ទាប់។",
+        step3GroupGame: "ល្បែងសិក្សា «ផ្គូផ្គងបណ្ណធរណីមាត្រ និងកន្ត្រៃមាស»៖ សិស្សចូលក្រុមបែងចែកបណ្ណរូបភាពទាំង ៦ ក្នុងសៀវភៅជំនួយ ទៅតាមប្រភេទ ចំណុច បន្ទាត់ ខ្សែកោង និងខ្សែកាច់ រួចឡើងបិទលើតារាងសំយោគ។",
+        misconceptions: "• សិស្សភាន់ច្រឡំរវាង «ខ្សែកោង» និង «ខ្សែកាច់» នៅពេលឃើញខ្សែកាច់មានអង្កត់ខ្លីៗច្រើនតភ្ជាប់គ្នា។\n• សិស្សគូសបន្ទាត់ និងខ្សែកាច់ដោយដៃទទេមិនប្រើបន្ទាត់ ធ្វើឱ្យអង្កត់មិនត្រង់។\n• វិធីជួយកែតម្រូវ៖ គ្រូណែនាំឱ្យសិស្សប្រើបន្ទាត់ជានិច្ចពេលគូសបន្ទាត់ និងខ្សែកាច់ ព្រមទាំងចង្អុលបង្ហាញកន្លែងកាច់ជ្រុងនីមួយៗឱ្យច្បាស់។",
+        step4Practice: "គ្រូបង្ហាញរូបភាពម្ដងមួយៗលើក្ដារខៀន៖ ឱ្យសិស្សសរសេរឈ្មោះ (ចំណុច / បន្ទាត់ / ខ្សែកោង / ខ្សែកាច់) លើក្ដារឆ្នួន និងលើកបណ្ណសញ្ញាចរាចរ (បៃតង=ត្រូវ, ក្រហម=ខុស) ដើម្បីវាយតម្លៃភ្លាមៗ។",
+        step5Homework: "ឱ្យសិស្សធ្វើលំហាត់ក្នុងសៀវភៅសិស្សទំព័រ ៤៨ (គូសបន្ទាត់ ខ្សែកោង និងខ្សែកាច់ក្នុងសៀវភៅសរសេរ) និងសង្កេតវត្ថុនៅផ្ទះដែលមានរាងជាខ្សែកោង និងខ្សែកាច់។",
+        barA: 15,
+        barB: 12,
+        placeNum: 248
+      },
+      {
+        id: "g3-div-2digit",
+        grade: "៣",
+        duration: "១ម៉ោងសិក្សា (៤០ នាទី)",
+        mainLesson: "មេរៀនទី១១៖ វិធីចែក (សស. ទំព័រ ៨៦)",
+        subTopic: "ខ្លឹមសាររង៖ ជំ.៤ មេ.១ (មេ. ៤.១) ការចែកចំនួនមានលេខពីរខ្ទង់នឹងមួយខ្ទង់គ្មានសំណល់ (ស.គ្រូ ទំព័រ ១៩៦)",
+        expectedOutcome: "លទ្ធផលរំពឹងទុកទី១៖ សិស្សធ្វើប្រមាណវិធីចែកចំនួនមានលេខពីរខ្ទង់នឹងមួយខ្ទង់គ្មានសំណល់តាមទម្រង់ឈរបានត្រឹមត្រូវ។",
+        activityTitle: "សកម្មភាពទី១៖ ការចែកចំនួនមានលេខពីរខ្ទង់នឹងមួយខ្ទង់ដោយប្រើបាច់បំពង់បឺត ទំព័រ ១៩៦ (សៀវភៅណែនាំគ្រូ បោះពុម្ពឆ្នាំ២០២៤)",
+        standardLevel: "កម្រិតស្ដង់ដារសកម្មភាពទី១",
+        objKnowledge: "សិស្សប្រាប់បានពីជំហាននៃការធ្វើប្រមាណវិធីចែកតាមទម្រង់ឈរ (ចែកពីខ្ទង់ដប់មុន រួចទើបចែកខ្ទង់រាយ) បានត្រឹមត្រូវតាមរយៈការបង្ហាញរបស់គ្រូ។",
+        objSkill: "សិស្សគណនាផលចែកចំនួនមានលេខពីរខ្ទង់នឹងមួយខ្ទង់គ្មានសំណល់ (ឧ. 48 ÷ 2, 69 ÷ 3) បានត្រឹមត្រូវតាមរយៈការងារដៃគូ និងក្រុម។",
+        objAttitude: "សិស្សមានទំនុកចិត្ត និងស្មារតីយុត្តិធម៌ក្នុងការបែងចែកវត្ថុស្មើៗគ្នានៅក្នុងជីវភាពប្រចាំថ្ងៃ។",
+        matTeacher: "បាច់បំពង់បឺត (៤ បាច់ដប់ និង ៨ រាយ) បន្ទះតម្លៃខ្ទង់ ដ្យាក្រាមរបារ Bar Model បណ្ណសញ្ញាចរាចរ (បៃតង/ក្រហម)។",
+        matStudent: "ក្ដារឆ្នួន ហ្វឺត បំពង់បឺតសម្រាប់រាប់ជាក្រុម សៀវភៅសិស្សទំព័រ ៨៦ និងសៀវភៅជំនួយ។",
+        step2Review: "រំឭកមេគុណ ២, ៣, ៤ និងការចែកក្នុងតារាងមេគុណ៖ 8 ÷ 2 = ?, 6 ÷ 3 = ? រួចភ្ជាប់ទៅចំណោទ៖ «គ្រូមានខ្មៅដៃ 48 ដើម ចែកឱ្យសិស្ស 2 នាក់ស្មើៗគ្នា តើម្នាក់ៗទទួលបានប៉ុន្មានដើម?»",
+        step3PairWork: "ឱ្យដៃគូសិស្សប្រើបាច់បំពង់បឺត 4 បាច់ដប់ និង 8 រាយ ចែកជា 2 ក្រុមស្មើគ្នា៖ ជំហានទី១ ចែក 4 បាច់ដប់ បាន 2 បាច់ដប់ក្នុងមួយក្រុម។ ជំហានទី២ ចែក 8 រាយ បាន 4 រាយក្នុងមួយក្រុម (សរុប 24)។",
+        step3KeyRule: "• វិធានចែកតាមទម្រង់ឈរ (48 ÷ 2 = 24)៖\n  ១. ចាប់ផ្ដើមចែកពីខ្ទង់ខាងឆ្វេង (ខ្ទង់ដប់) មុន៖ 4 ÷ 2 = 2, គុណត្រឡប់ 2 × 2 = 4, ដក 4 - 4 = 0។\n  ២. ទម្លាក់ខ្ទង់រាយ (8) ចុះមក៖ 8 ÷ 2 = 4, គុណត្រឡប់ 4 × 2 = 8, ដក 8 - 8 = 0។\n• ដ្យាក្រាមរបារ៖ ចំនួនសរុប 48 បែងចែកជា 2 ផ្នែកស្មើគ្នា (24 និង 24)។",
+        step3GroupGame: "ល្បែងសិក្សា «បង្វិលថាសប្រមាណវិធីចែក»៖ ក្រុមនីមួយៗបង្វិលថាសលេខ (36÷3, 64÷2, 84÷4, 93÷3) រួចប្រណាំងគ្នាសរសេរប្រមាណវិធីឈរលើក្ដារឆ្នួនក្រុម។",
+        misconceptions: "• ចាប់ផ្តើមធ្វើប្រមាណវិធីពីស្តាំមុនក្នុងប្រមាណវិធីចែក (ដូចវិធីបូក ដក គុណ)។\n• ដកខុសខ្ទង់ក្នុងប្រមាណវិធីចែក និងមិនទាន់ចេះស្ទាត់នូវលេខមេគុណ 2, 3, 4, 5 និង 10។\n• សិស្សមិនទាន់យល់ច្បាស់ពីទំនាក់ទំនងប្រមាណវិធីគុណ និងប្រមាណវិធីចែក ឬភាន់ច្រឡំធ្វើប្រមាណវិធីគុណ/បូកក្នុងចំណោទប្រមាណវិធីចែក។",
+        step4Practice: "ឱ្យសិស្សគណនាលើក្ដារឆ្នួន៖ ក) 68 ÷ 2 = ? ខ) 96 ÷ 3 = ? រួចលើកក្ដារឆ្នួនព្រមគ្នា និងប្រើបណ្ណសញ្ញាចរាចរ (បៃតង/ក្រហម) ផ្ទៀងផ្ទាត់ជំហានចែកពីឆ្វេងទៅស្ដាំ។",
+        step5Homework: "ធ្វើលំហាត់ក្នុងសៀវភៅសិស្សទំព័រ ៨៦ (លំហាត់គណនាប្រមាណវិធីចែកតាមទម្រង់ឈរ ចំនួន ៤ ខ្ទង់) និងទន្ទេញមេគុណ ២ ដល់ ៥ នៅផ្ទះ។",
+        barA: 24,
+        barB: 24,
+        placeNum: 48
+      },
+      {
+        id: "g3-mult-word",
+        grade: "៣",
+        duration: "១ម៉ោងសិក្សា (៤០ នាទី)",
+        mainLesson: "មេរៀនទី៩៖ វិធីគុណ (សស. ទំព័រ ៧៦)",
+        subTopic: "ខ្លឹមសាររង៖ ជំ.៣ មេ.១ (មេ. ៣.១) ចំណោទប្រមាណវិធីគុណ (ស.គ្រូ ទំព័រ ១៦៣-១៦៤)",
+        expectedOutcome: "លទ្ធផលរំពឹងទុកទី៥៖ សិស្សដោះស្រាយចំណោទប្រមាណវិធីគុណតាមជំហានទាំង ៤ និងដ្យាក្រាមរបារបានត្រឹមត្រូវ។",
+        activityTitle: "សកម្មភាពទី២២៖ ការដោះស្រាយចំណោទប្រមាណវិធីគុណ ទំព័រ ១៦៣-១៦៤ (សៀវភៅណែនាំគ្រូ បោះពុម្ពឆ្នាំ២០២៤)",
+        standardLevel: "កម្រិតស្ដង់ដារសកម្មភាពទី២",
+        objKnowledge: "សិស្សប្រាប់បានពីជំហានទាំង ៤ ក្នុងការដោះស្រាយចំណោទ (អានប្រធាន រកបំរាប់និងសំណួរ គូសដ្យាក្រាមរបារនិងបង្កើតប្រមាណវិធី ផ្ទៀងផ្ទាត់និងឆ្លើយ) បានត្រឹមត្រូវ។",
+        objSkill: "សិស្សវិភាគប្រធានចំណោទ គូសដ្យាក្រាមរបារ និងគណនាផលគុណ (ឧ. ២៤ × ៣ = ៧២ ក្បាល, ១២៥ × ៤ = ៥០០ ដើម) លើក្ដារឆ្នួន និងសៀវភៅសិស្សទំព័រ ៧៦ បានត្រឹមត្រូវ។",
+        objAttitude: "សិស្សមានការសង្កេតហ្មត់ចត់ ផ្ចិតផ្ចង់ និងទំនុកចិត្តក្នុងការដោះស្រាយបញ្ហាជាក់ស្ដែងក្នុងជីវភាពប្រចាំថ្ងៃ។",
+        matTeacher: "សៀវភៅណែនាំគ្រូថ្នាក់ទី៣ (ទំព័រ ១៦៣-១៦៤), សៀវភៅសិស្សទំព័រ ៧៦, បន្ទះដ្យាក្រាមរបារ Bar Model, ផ្ទាំងប្រធានចំណោទគំរូ, បណ្ណសញ្ញាចរាចរ។",
+        matStudent: "ក្ដារឆ្នួន ហ្វឺត សៀវភៅសិស្សថ្នាក់ទី៣ (ទំព័រ ៧៦) បន្ទាត់ និងសៀវភៅសរសេរ។",
+        step2Review: "រំឭកការគុណលេខ ២ខ្ទង់ និង ៣ខ្ទង់នឹង ១ខ្ទង់លើក្ដារឆ្នួន៖ ក) ២៣ × ៣ = ៦៩ ខ) ១៤២ × ២ = ២៨៤ រួចភ្ជាប់ទៅមេរៀនថ្មី «ចំណោទប្រមាណវិធីគុណ»។",
+        step3PairWork: "គ្រូបង្ហាញប្រធានចំណោទគំរូ (សកម្មភាពទី២២ ស.គ្រូ ទំព័រ ១៦៣-១៦៤)៖ «បណ្ណាល័យមួយមានទូសៀវភៅ ៣ ទូ។ ក្នុង ១ ទូមានសៀវភៅ ២៤ ក្បាលស្មើគ្នា។ តើមានសៀវភៅសរុបប៉ុន្មានក្បាល?» សិស្សចាប់ដៃគូរកបំរាប់ សំណួរ និងគូសដ្យាក្រាមរបារ ៣ ប្រឡោះស្មើគ្នា (២៤ × ៣ = ៧២ ក្បាល)។",
+        step3KeyRule: "• ជំហានទាំង ៤ ក្នុងការដោះស្រាយចំណោទ៖\n  ១. អាន និងស្វែងយល់ប្រធានចំណោទ\n  ២. ស្វែងរកបំរាប់ (ទិន្នន័យប្រាប់) និងសំណួរ (អ្វីដែលត្រូវរក)\n  ៣. គូសដ្យាក្រាមរបារ (Bar Model) បង្កើតប្រមាណវិធីគុណ និងគណនា\n  ៤. ផ្ទៀងផ្ទាត់ចម្លើយ និងសរសេររបៀបឆ្លើយដោយដាក់ខ្នាតឱ្យត្រឹមត្រូវ។",
+        step3GroupGame: "ល្បែងសិក្សា «អ្នកពូកែវិភាគចំណោទ»៖ ក្រុមសិស្សដោះស្រាយលំហាត់ចំណោទក្នុងសៀវភៅសិស្សទំព័រ ៧៦ (កសិករដាំចេក ៤ ជួរ ក្នុង ១ ជួរមាន ១២៥ ដើម ៖ ១២៥ × ៤ = ៥០០ ដើម)។",
+        misconceptions: "• សិស្សយកលេខក្នុងប្រធានចំណោទទៅបូកបញ្ចូលគ្នាជំនួសឱ្យការគុណ (ឧ. ២៤ + ៣ = ២៧) ដោយមិនបានគូសដ្យាក្រាមរបារពិនិត្យក្រុមស្មើៗគ្នា។\n• សិស្សភ្លេចបូកលេខត្រាទុកពេលគុណលេខ ២ខ្ទង់ ឬ ៣ខ្ទង់នឹង ១ខ្ទង់ ឬភ្លេចសរសេរខ្នាតនៅក្នុងរបៀបឆ្លើយ។",
+        step4Practice: "ឱ្យសិស្សដោះស្រាយលើក្ដារឆ្នួន៖ «សិស្សម្នាក់ទិញសៀវភៅ ៥ ក្បាល ក្នុង ១ ក្បាលថ្លៃ ៨០០ រៀល។ តើត្រូវចំណាយប្រាក់សរុបប៉ុន្មានរៀល?» (៨០០ × ៥ = ៤ ០០០ រៀល)។",
+        step5Homework: "ធ្វើលំហាត់ចំណោទដែលនៅសល់ក្នុងសៀវភៅសិស្សថ្នាក់ទី៣ ទំព័រ ៧៦ ចូលក្នុងសៀវភៅសរសេរ។",
+        barA: 48,
+        barB: 24,
+        placeNum: 500
+      },
+      {
+        id: "g2-weight-compare",
+        grade: "២",
+        duration: "១ម៉ោងសិក្សា (៤០ នាទី)",
+        mainLesson: "មេរៀនទី៩៖ ទម្ងន់ (សស. ទំព័រ ៦១)",
+        subTopic: "ខ្លឹមសាររង៖ ជំ.២ មេ.២ (មេ. ២.២) ការប៉ាន់ស្មាន និងប្រៀបធៀបទម្ងន់ធៀបនឹង ១ គីឡូក្រាម (ស.គ្រូ ទំព័រ ២៥១-២៥២)",
+        expectedOutcome: "លទ្ធផលរំពឹងទុកទី២៖ សិស្សប៉ាន់ស្មាន និងប្រៀបធៀបទម្ងន់វត្ថុធៀបនឹង ១ គីឡូក្រាម ដោយប្រើពាក្យ ធ្ងន់ជាង ស្រាលជាង ស្មើ ឬសញ្ញា < > = បានត្រឹមត្រូវ។",
+        activityTitle: "សកម្មភាពទី៣៖ ប៉ាន់ស្មាន និងប្រៀបធៀបទម្ងន់ធៀបនឹង ១ គីឡូក្រាម ទំព័រ ២៥១-២៥២ (សៀវភៅណែនាំគ្រូ បោះពុម្ពឆ្នាំ២០២៤)",
+        standardLevel: "កម្រិតស្ដង់ដារសកម្មភាពទី២",
+        objKnowledge: "សិស្សយល់ដឹងពីការប៉ាន់ស្មាន និងប្រៀបធៀបទម្ងន់ធៀបនឹង ១ គីឡូក្រាម (១ គក) ដោយប្រើពាក្យ ធ្ងន់ជាង ស្រាលជាង ស្មើ និងសញ្ញា < > = បានត្រឹមត្រូវ។",
+        objSkill: "សិស្សចេះប្រើដៃប៉ាន់ស្មាន ប្រើជញ្ជីងជាក់ស្ដែងសម្រាប់ថ្លឹងផ្ទៀងផ្ទាត់ និងសរសេរប្រៀបធៀបទម្ងន់លើក្ដារឆ្នួន និងសៀវភៅសិស្សទំព័រ ៦១ បានត្រឹមត្រូវ។",
+        objAttitude: "សិស្សមានទំនុកចិត្ត ស្មារតីសហការល្អ និងចេះថ្លឹងថ្លែងដោយស្មោះត្រង់ក្នុងជីវភាពរស់នៅប្រចាំថ្ងៃ។",
+        matTeacher: "សៀវភៅណែនាំគ្រូថ្នាក់ទី២ (ទំព័រ ២៥១-២៥២), សៀវភៅសិស្សទំព័រ ៦១, សៀវភៅស្ដង់ដា MCAS, ជញ្ជីងប៉ុង, កញ្ចប់គំរូ ១ គក (ស្ករស ១ គក), ផ្លែក្រូច, ឪឡឹក, បណ្ណសញ្ញា (<, >, =)។",
+        matStudent: "ក្ដារឆ្នួន ហ្វឺត សៀវភៅសិស្សថ្នាក់ទី២ (ទំព័រ ៦១) វត្ថុប្រើប្រាស់ផ្ទាល់ខ្លួនសម្រាប់ថ្លឹងសាកល្បង។",
+        step2Review: "រំឭកប្រភេទជញ្ជីង និងការថ្លឹងដោយដៃ រួចភ្ជាប់ទៅមេរៀនថ្មី៖ ការប៉ាន់ស្មាន និងប្រៀបធៀបទម្ងន់វត្ថុធៀបនឹងខ្នាតគំរូ «១ គីឡូក្រាម (១ គក)»។",
+        step3PairWork: "ឱ្យដៃគូសិស្សកាន់កញ្ចប់គំរូ ១ គក នៅដៃម្ខាង និងវត្ថុផ្សេងទៀតនៅដៃម្ខាងទៀតដើម្បីប៉ាន់ស្មាន រួចយកទៅថ្លឹងលើជញ្ជីងផ្ទៀងផ្ទាត់ (ពិនិត្យទ្រនិចឱ្យចំលេខ ០ មុនថ្លឹង)។",
+        step3KeyRule: "• មុនពេលថ្លឹង ត្រូវពិនិត្យទ្រនិចជញ្ជីងឱ្យចង្អុលចំលេខសូន្យ (០) ជានិច្ច។\n• ប្រសិនបើទ្រនិចចង្អុលលើសលេខ ១ គក នោះវត្ថុ «ធ្ងន់ជាង ១ គក (>)»។\n• ប្រសិនបើទ្រនិចមិនទាន់ដល់លេខ ១ គក នោះវត្ថុ «ស្រាលជាង ១ គក (<)»។\n• ប្រសិនបើទ្រនិចចំលេខ ១ គក នោះវត្ថុ «ស្មើ ១ គក (=)»។",
+        step3GroupGame: "ល្បែងសិក្សា «ទិញអីវ៉ាន់នៅផ្សារភូមិថ្លុកបង្កោ»៖ ក្រុមសិស្សប៉ាន់ស្មាន និងថ្លឹងវត្ថុ រួចបំពេញសញ្ញា <, >, = ក្នុងសៀវភៅសិស្សទំព័រ ៦១។",
+        misconceptions: "• សិស្សយល់ច្រឡំថាវត្ថុដែលមានទំហំធំតែងតែធ្ងន់ជាងវត្ថុដែលមានទំហំតូចជានិច្ច។\n• សិស្សច្រឡំរវាងសញ្ញាធំជាង (>) និងតូចជាង (<) ឬភ្លេចពិនិត្យទ្រនិចជញ្ជីងឱ្យចំលេខ ០ មុនពេលថ្លឹង។",
+        step4Practice: "ឱ្យសិស្សបំពេញសញ្ញា <, >, = លើក្ដារឆ្នួន៖ ក) ទម្ងន់ផ្លែឪឡឹកធំ [...] ១ គក (>) ខ) ទម្ងន់ផ្លែក្រូច ១ ផ្លែ [...] ១ គក (<) គ) ស្ករស ១ គក [...] ១ គក (=)។",
+        step5Homework: "សង្កេតវត្ថុ ៣ មុខនៅផ្ទះ រួចកត់ត្រាការប្រៀបធៀបធៀបនឹង ១ គីឡូក្រាម ចូលក្នុងសៀវភៅសរសេរ។",
+        barA: 10,
+        barB: 10,
+        placeNum: 100
+      },
+      {
+        id: "g2-add-carry",
+        grade: "២",
+        duration: "១ម៉ោងសិក្សា (៤០ នាទី)",
+        mainLesson: "មេរៀនទី៣៖ វិធីបូកចំនួនមានលេខ ២ខ្ទង់ (សស. ទំព័រ ២៥)",
+        subTopic: "ខ្លឹមសាររង៖ ជំ.១ មេ.៣ (មេ. ១.៣) ការបូកលេខមានលេខ២ខ្ទង់និង២ខ្ទង់ដោយមានត្រាទុក (ស.គ្រូ ទំព័រ ៨៤)",
+        expectedOutcome: "លទ្ធផលរំពឹងទុកទី២៖ សិស្សគណនាផលបូកចំនួនមានលេខពីរខ្ទង់នឹងពីរខ្ទង់ដោយមានត្រាទុកតាមទម្រង់ឈរបានត្រឹមត្រូវ។",
+        activityTitle: "សកម្មភាពទី៨៖ ការបូកចំនួនមានលេខពីរខ្ទង់មានត្រាទុកដោយប្រើបន្ទះតម្លៃខ្ទង់ ទំព័រ ៨៤ (សៀវភៅណែនាំគ្រូ បោះពុម្ពឆ្នាំ២០២៤)",
+        standardLevel: "កម្រិតស្ដង់ដារសកម្មភាពទី២",
+        objKnowledge: "សិស្សប្រាប់បានពីរបៀបដាក់លេខឱ្យត្រូវតាមខ្ទង់ (រាយក្រោមរាយ ដប់ក្រោមដប់) និងការប្ដូរ ១០ រាយ ទៅជា ១ ដប់ (ត្រាទុក ១ លើខ្ទង់ដប់) បានត្រឹមត្រូវ។",
+        objSkill: "សិស្សធ្វើប្រមាណវិធីបូកចំនួនមានលេខពីរខ្ទង់មានត្រាទុក (ឧ. 27 + 15 = 42) តាមទម្រង់ឈរបានត្រឹមត្រូវតាមរយៈការងារដៃគូ និងក្រុម។",
+        objAttitude: "សិស្សមានភាពផ្ចិតផ្ចង់ អត់ធ្មត់ និងទំនុកចិត្តក្នុងការគណនាលេខនៅក្នុងជីវភាពប្រចាំថ្ងៃ។",
+        matTeacher: "បាច់បំពង់បឺត បន្ទះតម្លៃខ្ទង់ (បន្ទះដប់ និងគ្រាប់រាយ) តារាងតម្លៃខ្ទង់ ដ្យាក្រាមរបារ Bar Model បណ្ណសញ្ញាចរាចរ។",
+        matStudent: "ក្ដារឆ្នួន ហ្វឺត បំពង់បឺត សៀវភៅសិស្សថ្នាក់ទី២ ទំព័រ ២៥ និងសៀវភៅជំនួយ។",
+        step2Review: "រំឭកការបូកក្នុងរង្វង់ ២០៖ 7 + 5 = ?, 8 + 6 = ? និងការប្ដូរ ១២ រាយ ស្មើនឹង ១ ដប់ និង ២ រាយ រួចភ្ជាប់ទៅមេរៀនថ្មី 27 + 15។",
+        step3PairWork: "ឱ្យដៃគូសិស្សរៀបបន្ទះតម្លៃខ្ទង់តាង 27 (២ ដប់ និង ៧ រាយ) បូកនឹង 15 (១ ដប់ និង ៥ រាយ)៖ បូកខ្ទង់រាយ 7 + 5 = 12 រាយ ប្ដូរ 10 រាយ ជា 1 បន្ទះដប់ ដាក់បន្ថែមលើខ្ទង់ដប់។",
+        step3KeyRule: "• វិធានបូកមានត្រាទុក (27 + 15 = 42)៖\n  ១. សរសេរលេខឱ្យត្រូវតាមខ្ទង់ (រាយក្រោមរាយ ដប់ក្រោមដប់)។\n  ២. បូកខ្ទង់រាយមុន៖ 7 + 5 = 12 សរសេរលេខ 2 ក្រោមខ្ទង់រាយ ត្រាទុក 1 លើខ្ទង់ដប់។\n  ៣. បូកខ្ទង់ដប់៖ 2 + 1 + 1 (ត្រាទុក) = 4 សរសេរលេខ 4 ក្រោមខ្ទង់ដប់ (ផលបូក = 42)។",
+        step3GroupGame: "ល្បែងសិក្សា «ប្រណាំងរថភ្លើងគណនាផលបូក»៖ ក្រុមសិស្សចាប់បណ្ណប្រមាណវិធី (38+24, 46+17, 59+23) រួចសហការគ្នាដោះស្រាយលើតារាងតម្លៃខ្ទង់។",
+        misconceptions: "• សិស្សភ្លេចបូកលេខត្រាទុក ១ នៅលើខ្ទង់ដប់ (ឧ. 27 + 15 សិស្សឆ្លើយ 32)។\n• សិស្សសរសេរលេខទាំងពីរខ្ទង់នៃផលបូកខ្ទង់រាយចូលក្នុងផលបូកតែម្ដង (ឧ. 27 + 15 សរសេរ 312)។\n• សិស្សចាប់ផ្ដើមបូកពីខ្ទង់ដប់ខាងឆ្វេងមុន ធ្វើឱ្យខុសនៅពេលមានត្រាទុក។",
+        step4Practice: "ឱ្យសិស្សធ្វើលើក្ដារឆ្នួន៖ ក) 36 + 27 = ? ខ) 48 + 35 = ? រួចលើកក្ដារឆ្នួន និងបណ្ណសញ្ញាចរាចរ (បៃតង/ក្រហម) ដើម្បីត្រួតពិនិត្យលេខត្រាទុក។",
+        step5Homework: "ធ្វើលំហាត់ក្នុងសៀវភៅសិស្សថ្នាក់ទី២ ទំព័រ ២៥ (លំហាត់ទី២ ចំនួន ៤ ប្រមាណវិធី) ចូលក្នុងសៀវភៅសរសេរ។",
+        barA: 27,
+        barB: 15,
+        placeNum: 42
+      }
+    ];
+
+    var SAMPLE_PASTES = {
+      "g3-len": "១ម៉\nសស. មេ. ៥៖ ប្រវែង ការប្តូរខ្នាតប្រវែង (ទំ.៣៦)\nសគ. ជំ.៥ មេ.១៖ សកម្ម. ទី៨ (ទំ.២៥៧-២៥៨)",
+      "g2-weight": "១ម៉\nសស. មេ. ៩៖ ទម្ងន់ ការប៉ាន់ស្មាននិងប្រៀបធៀបទម្ងន់ធៀបនឹង១គីឡូក្រាម (ទំ.៦១)\nសគ. ជំ.២ មេ.២៖ សកម្ម. ទី៣ (ទំ.២៥១-២៥២)",
+      "g1-geo": "១ម៉\nសស. មេ. ៩៖ ធរណីមាត្រ ចំណុច បន្ទាត់ ខ្សែកោង ខ្សែកាច់ (ទំ.៤៨)\nសគ. ជំ.៣ មេ.១៖ សកម្ម. ទី៣ (ទំ.២៨៨-២៨៩)"
+    };
+
+    // =========================================================================
+    // 2. APPLICATION STATE & STORAGE
+    // =========================================================================
+    var currentGradeFilter = "ALL";
+    var currentSlideIndex = 0;
+    var savedPlans = [];
+    var STORAGE_KEY = "moeys_math_package_saved_plans_v1";
+
+    function loadSavedPlansFromStorage() {
+      try {
+        var raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            savedPlans = parsed;
+          }
+        }
+      } catch (e) {
+        savedPlans = [];
+      }
+      if (savedPlans.length === 0) {
+        savedPlans = [
+          JSON.parse(JSON.stringify(LESSON_PRESETS[0])),
+          JSON.parse(JSON.stringify(LESSON_PRESETS[4]))
+        ];
+        savedPlans[0].savedAt = "១៩/១០/២០២៦ • ២២:០០";
+        savedPlans[1].savedAt = "១៩/១០/២០២៦ • ២១:៣៥";
+      }
+      updateSavedBadge();
+    }
+
+    function persistSavedPlans() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(savedPlans));
+      } catch (e) {
+        // Ignore storage quota errors in sandboxed iframe
+      }
+      updateSavedBadge();
+    }
+
+    function updateSavedBadge() {
+      var badge = document.getElementById("savedCountBadge");
+      if (badge) {
+        badge.textContent = String(savedPlans.length);
+      }
+    }
+
+    function showToast(message, icon) {
+      var container = document.getElementById("toastContainer");
+      var msgEl = document.getElementById("toastMessage");
+      var iconEl = document.getElementById("toastIcon");
+      if (!container || !msgEl || !iconEl) return;
+      msgEl.textContent = message;
+      iconEl.textContent = icon || "✓";
+      container.classList.remove("hidden");
+      if (window._toastTimer) clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(function () {
+        container.classList.add("hidden");
+      }, 3200);
+    }
+
+    // =========================================================================
+    // 3. FORM GETTERS & SETTERS
+    // =========================================================================
+    function getFormState() {
+      return {
+        grade: document.getElementById("fieldGrade").value,
+        teacher: document.getElementById("fieldTeacher").value.trim(),
+        duration: document.getElementById("fieldDuration").value.trim(),
+        school: document.getElementById("fieldSchool").value.trim(),
+        lunarDate: document.getElementById("fieldLunarDate").value.trim(),
+        solarDate: document.getElementById("fieldSolarDate").value.trim(),
+        mainLesson: document.getElementById("fieldMainLesson").value.trim(),
+        subTopic: document.getElementById("fieldSubTopic").value.trim(),
+        expectedOutcome: document.getElementById("fieldExpectedOutcome").value.trim(),
+        activityTitle: document.getElementById("fieldActivityTitle").value.trim(),
+        standardLevel: document.getElementById("fieldStandardLevel").value,
+        objKnowledge: document.getElementById("fieldObjKnowledge").value.trim(),
+        objSkill: document.getElementById("fieldObjSkill").value.trim(),
+        objAttitude: document.getElementById("fieldObjAttitude").value.trim(),
+        matTeacher: document.getElementById("fieldMatTeacher").value.trim(),
+        matStudent: document.getElementById("fieldMatStudent").value.trim(),
+        step2Review: document.getElementById("fieldStep2Review").value.trim(),
+        step3PairWork: document.getElementById("fieldStep3PairWork").value.trim(),
+        step3KeyRule: document.getElementById("fieldStep3KeyRule").value.trim(),
+        step3GroupGame: document.getElementById("fieldStep3GroupGame").value.trim(),
+        misconceptions: document.getElementById("fieldMisconceptions").value.trim(),
+        step4Practice: document.getElementById("fieldStep4Practice").value.trim(),
+        step5Homework: document.getElementById("fieldStep5Homework").value.trim(),
+        barA: parseInt(document.getElementById("inputBarA").value, 10) || 200,
+        barB: parseInt(document.getElementById("inputBarB").value, 10) || 35,
+        placeNum: parseInt(document.getElementById("inputPlaceNum").value, 10) || 235
+      };
+    }
+
+    function applyPresetToForm(preset) {
+      document.getElementById("fieldGrade").value = preset.grade || "៣";
+      if (preset.duration) document.getElementById("fieldDuration").value = preset.duration;
+      document.getElementById("fieldMainLesson").value = preset.mainLesson || "";
+      document.getElementById("fieldSubTopic").value = preset.subTopic || "";
+      document.getElementById("fieldExpectedOutcome").value = preset.expectedOutcome || "";
+      document.getElementById("fieldActivityTitle").value = preset.activityTitle || "";
+      document.getElementById("fieldStandardLevel").value = preset.standardLevel || "កម្រិតស្ដង់ដារសកម្មភាពទី១";
+      document.getElementById("fieldObjKnowledge").value = preset.objKnowledge || "";
+      document.getElementById("fieldObjSkill").value = preset.objSkill || "";
+      document.getElementById("fieldObjAttitude").value = preset.objAttitude || "";
+      document.getElementById("fieldMatTeacher").value = preset.matTeacher || "";
+      document.getElementById("fieldMatStudent").value = preset.matStudent || "";
+      document.getElementById("fieldStep2Review").value = preset.step2Review || "";
+      document.getElementById("fieldStep3PairWork").value = preset.step3PairWork || "";
+      document.getElementById("fieldStep3KeyRule").value = preset.step3KeyRule || "";
+      document.getElementById("fieldStep3GroupGame").value = preset.step3GroupGame || "";
+      document.getElementById("fieldMisconceptions").value = preset.misconceptions || "";
+      document.getElementById("fieldStep4Practice").value = preset.step4Practice || "";
+      document.getElementById("fieldStep5Homework").value = preset.step5Homework || "";
+
+      if (preset.barA) document.getElementById("inputBarA").value = preset.barA;
+      if (preset.barB) document.getElementById("inputBarB").value = preset.barB;
+      if (preset.placeNum) document.getElementById("inputPlaceNum").value = preset.placeNum;
+
+      renderAllViews();
+    }
+
+    // =========================================================================
+    // 4. SMART CURRICULUM SCHEDULE PASTE PARSER & TEXTBOOK RESOLVER
+    // =========================================================================
+    function resolveGradeAndTocEntry(explicitGrade, lessonNumInt, ssPageInt, rawText) {
+      var candidates = OFFICIAL_TOC_DB;
+      if (explicitGrade) {
+        candidates = candidates.filter(function (c) { return c.grade === explicitGrade; });
+      }
+
+      var bestMatch = null;
+      var bestScore = -1;
+
+      for (var i = 0; i < candidates.length; i++) {
+        var entry = candidates[i];
+        var score = 0;
+        if (lessonNumInt !== null && entry.lesson === lessonNumInt) {
+          score += 5;
+        }
+        if (ssPageInt !== null && ssPageInt >= entry.pStart && ssPageInt <= entry.pEnd) {
+          score += 6;
+        }
+        if (rawText.indexOf(entry.title) !== -1) {
+          score += 8;
+        } else {
+          var firstWord = entry.title.split(" ")[0];
+          if (firstWord && firstWord.length >= 3 && rawText.indexOf(firstWord) !== -1) {
+            score += 4;
+          }
+        }
+        if (score > bestScore) {
+          bestScore = score;
+          bestMatch = entry;
+        }
+      }
+
+      return bestScore >= 5 ? bestMatch : null;
+    }
+
+    function parseSmartScheduleInput(rawText) {
+      var cleaned = String(rawText || "").replace(/^\s*\(|\)\s*$/g, "").trim();
+
+      // 1. Detect Explicit Grade if written
+      var explicitGrade = null;
+      if (/ថ្នាក់ទី\s*[១1]|G1/i.test(cleaned)) explicitGrade = "១";
+      else if (/ថ្នាក់ទី\s*[២2]|G2/i.test(cleaned)) explicitGrade = "២";
+      else if (/ថ្នាក់ទី\s*[៣3]|G3/i.test(cleaned)) explicitGrade = "៣";
+      else if (/ថ្នាក់ទី\s*[៤4]|G4/i.test(cleaned)) explicitGrade = "៤";
+      else if (/ថ្នាក់ទី\s*[៥5]|G5/i.test(cleaned)) explicitGrade = "៥";
+      else if (/ថ្នាក់ទី\s*[៦6]|G6/i.test(cleaned)) explicitGrade = "៦";
+
+      // 2. Detect Duration (e.g., ១ម៉, ២ម៉)
+      var durMatch = cleaned.match(/([០-៩0-9]+)\s*ម៉(?:ោង)?/);
+      var hoursInt = durMatch ? khmerToArabicInt(durMatch[1]) : 1;
+      var durationStr = (hoursInt === 2)
+        ? "២ម៉ោងសិក្សា (៨០ នាទី)"
+        : "១ម៉ោងសិក្សា (៤០ នាទី)";
+
+      // 3. Split lines or segments by សស. and សគ.
+      var ssLine = "";
+      var sgLine = "";
+      var lines = cleaned.split(/\n+/);
+      for (var i = 0; i < lines.length; i++) {
+        var ln = lines[i].trim();
+        if (/ស\.?ស\.?|សៀវភៅសិស្ស/.test(ln)) ssLine = ln;
+        else if (/ស\.?គ\.?|ស\.?គ្រូ|សៀវភៅ(?:ណែនាំ)?គ្រូ/.test(ln)) sgLine = ln;
+      }
+      if (!ssLine && /ស\.?ស\.?/.test(cleaned)) {
+        var mSs = cleaned.match(/(ស\.?ស\.?[^\n]*?)(?=ស\.?គ\.?|ស\.?គ្រូ|$)/);
+        if (mSs) ssLine = mSs[1].trim();
+      }
+      if (!sgLine && /(ស\.?គ\.?|ស\.?គ្រូ)/.test(cleaned)) {
+        var mSg = cleaned.match(/((?:ស\.?គ\.?|ស\.?គ្រូ)[^\n]*)/);
+        if (mSg) sgLine = mSg[1].trim();
+      }
+      if (!ssLine) ssLine = cleaned;
+
+      // 4. Parse Student Book (សស.) Lesson Number, Page, and Topic
+      var ssLessonMatch = ssLine.match(/មេ(?:រៀន(?:ទី)?)?\.?\s*([០-៩0-9]+)/);
+      var ssLessonInt = ssLessonMatch ? khmerToArabicInt(ssLessonMatch[1]) : null;
+
+      var ssPageMatch = ssLine.match(/\(?ទំ(?:ព័រ)?\.?\s*([០-៩0-9]+(?:\s*[-–ដល់]\s*[០-៩0-9]+)?)\)?/);
+      var ssPageStr = ssPageMatch ? ssPageMatch[1].trim() : "";
+      var ssPageInt = ssPageStr ? khmerToArabicInt(ssPageStr) : null;
+
+      // Extract topic text between मេ. X៖ and (ទំ.Y)
+      var rawSsBody = ssLine
+        .replace(/^.*?ស\.?ស\.?\s*/i, "")
+        .replace(/^មេ(?:រៀន(?:ទី)?)?\.?\s*[០-៩0-9]+\s*(?:\(ត\))?\s*[៖:]?\s*/i, "")
+        .replace(/\(?ទំ(?:ព័រ)?\.?\s*[០-៩0-9]+(?:\s*[-–ដល់]\s*[០-៩0-9]+)?\)?/g, "")
+        .replace(/[()]/g, "")
+        .trim();
+
+      // 5. Parse Teacher's Guide (សគ.) Chapter, Lesson, Activity, and Page
+      var tgChapMatch = sgLine.match(/ជំ(?:ពូក(?:ទី)?)?\.?\s*([០-៩0-9]+)/);
+      var tgChapStr = tgChapMatch ? intToKhmer(khmerToArabicInt(tgChapMatch[1])) : "";
+
+      var tgLesMatch = sgLine.match(/មេ(?:រៀន(?:ទី)?)?\.?\s*([០-៩0-9]+(?:\.[០-៩0-9]+)?)/);
+      var tgLesStr = tgLesMatch ? tgLesMatch[1].trim() : "";
+
+      var tgActMatch = sgLine.match(/សកម្ម(?:ភាព)?\.?\s*(?:ទី)?\s*([០-៩0-9]+)/);
+      var tgActInt = tgActMatch ? khmerToArabicInt(tgActMatch[1]) : 1;
+      var tgActKh = intToKhmer(tgActInt);
+
+      var tgPageMatch = sgLine.match(/\(?ទំ(?:ព័រ)?\.?\s*([០-៩0-9]+(?:\s*[-–ដល់]\s*[០-៩0-9]+)?)\)?/);
+      var tgPageStr = tgPageMatch ? tgPageMatch[1].trim() : "";
+
+      // 6. Resolve exact Grade and Official TOC Lesson Title
+      var tocMatch = resolveGradeAndTocEntry(explicitGrade, ssLessonInt, ssPageInt, cleaned);
+      var resolvedGrade = explicitGrade || (tocMatch ? tocMatch.grade : document.getElementById("fieldGrade").value || "៣");
+      var officialLessonNumKh = ssLessonInt !== null ? intToKhmer(ssLessonInt) : (tocMatch ? intToKhmer(tocMatch.lesson) : "៥");
+      var officialTocTitle = tocMatch ? tocMatch.title : "";
+
+      // Separate Main Lesson Title (from Student Book TOC) and Subtopic Title
+      var subTopicTitle = rawSsBody;
+      if (officialTocTitle && rawSsBody.indexOf(officialTocTitle) === 0) {
+        var remainder = rawSsBody.slice(officialTocTitle.length).replace(/^[៖:\s\-–]+/, "").trim();
+        if (remainder) {
+          subTopicTitle = remainder;
+        } else {
+          subTopicTitle = officialTocTitle;
+        }
+      } else if (!officialTocTitle && rawSsBody) {
+        var parts = rawSsBody.split(/\s+/);
+        if (parts.length >= 2) {
+          officialTocTitle = parts[0];
+          subTopicTitle = parts.slice(1).join(" ");
+        } else {
+          officialTocTitle = rawSsBody;
+          subTopicTitle = rawSsBody;
+        }
+      }
+      if (!officialTocTitle) officialTocTitle = "ប្រវែង";
+      if (!subTopicTitle) subTopicTitle = officialTocTitle;
+
+      var finalSsPage = ssPageStr || (tocMatch ? intToKhmer(tocMatch.pStart) : "៣៦");
+      var finalTgPage = tgPageStr || "២៥៧-២៥៨";
+
+      var tgCodePrefix = "";
+      if (tgChapStr && tgLesStr) {
+        tgCodePrefix = "ជំ." + tgChapStr + " មេ." + tgLesStr + " (មេ. " + tgChapStr + "." + tgLesStr + ")";
+      } else if (tgLesStr) {
+        tgCodePrefix = "មេ. " + tgLesStr;
+      } else {
+        tgCodePrefix = "មេ. " + officialLessonNumKh + ".១";
+      }
+
+      var stdLevel = (tgActInt >= 4) ? "កម្រិតស្ដង់ដារសកម្មភាពទី២" : "កម្រិតស្ដង់ដារសកម្មភាពទី១";
+
+      return {
+        grade: resolvedGrade,
+        duration: durationStr,
+        lessonNumKh: officialLessonNumKh,
+        officialTocTitle: officialTocTitle,
+        subTopicTitle: subTopicTitle,
+        ssPage: finalSsPage,
+        tgCodePrefix: tgCodePrefix,
+        tgActKh: tgActKh,
+        tgActInt: tgActInt,
+        tgPage: finalTgPage,
+        standardLevel: stdLevel,
+        rawText: cleaned
+      };
+    }
+
+    
+    // =========================================================================
+    // 4B. STANDALONE API KEY MANAGER & LIVE LLM GENERATOR (GEMINI / OPENAI)
+    // =========================================================================
+    var API_CONFIG_STORAGE_KEY = "moeys_math_agent_api_config_v1";
+    var apiConfig = {
+      provider: "gemini",
+      model: "gemini-2.5-flash",
+      apiKey: "",
+      customEndpoint: "https://openrouter.ai/api/v1/chat/completions",
+      customInstructions: "",
+      autoCallOnPaste: true
+    };
+    var isCallingAiApi = false;
+
+    function loadApiConfigFromStorage() {
+      try {
+        var raw = localStorage.getItem(API_CONFIG_STORAGE_KEY);
+        if (raw) {
+          var parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === "object") {
+            apiConfig.provider = parsed.provider || "gemini";
+            apiConfig.model = parsed.model || "gemini-2.5-flash";
+            apiConfig.apiKey = parsed.apiKey || "";
+            apiConfig.customEndpoint = parsed.customEndpoint || "https://openrouter.ai/api/v1/chat/completions";
+            apiConfig.customInstructions = parsed.customInstructions || "";
+            apiConfig.autoCallOnPaste = parsed.autoCallOnPaste !== false;
+          }
+        }
+      } catch (e) {}
+      syncApiConfigToUi();
+    }
+
+    function saveApiConfigToStorage() {
+      try {
+        localStorage.setItem(API_CONFIG_STORAGE_KEY, JSON.stringify(apiConfig));
+      } catch (e) {}
+      syncApiConfigToUi();
+    }
+
+    function hasActiveApiKey() {
+      return Boolean(apiConfig.apiKey && apiConfig.apiKey.trim().length > 8);
+    }
+
+    function syncApiConfigToUi() {
+      var provEl = document.getElementById("selectApiProvider");
+      var modEl = document.getElementById("selectAiModel");
+      var keyEl = document.getElementById("inputApiKey");
+      var endWrap = document.getElementById("customEndpointWrap");
+      var endEl = document.getElementById("inputCustomEndpoint");
+      var instEl = document.getElementById("inputCustomInstructions");
+      var autoChk = document.getElementById("chkAutoCallApiOnPaste");
+
+      if (provEl) provEl.value = apiConfig.provider;
+      if (modEl) modEl.value = apiConfig.model;
+      if (keyEl) keyEl.value = apiConfig.apiKey;
+      if (endEl) endEl.value = apiConfig.customEndpoint;
+      if (instEl) instEl.value = apiConfig.customInstructions;
+      if (autoChk) autoChk.checked = apiConfig.autoCallOnPaste;
+      if (endWrap) {
+        if (apiConfig.provider === "openrouter") endWrap.classList.remove("hidden");
+        else endWrap.classList.add("hidden");
+      }
+
+      var headerDot = document.getElementById("apiHeaderDot");
+      var headerBadge = document.getElementById("apiConnectionBadge");
+      var inlineDot = document.getElementById("inlineApiDot");
+      var inlineLabel = document.getElementById("inlineApiStatusLabel");
+      var modalStatusMsg = document.getElementById("apiModalStatusMsg");
+
+      if (hasActiveApiKey()) {
+        var provLabel = apiConfig.provider === "gemini" ? "Gemini API" : (apiConfig.provider === "openai" ? "OpenAI API" : "Custom API");
+        if (headerDot) headerDot.className = "w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse";
+        if (headerBadge) {
+          headerBadge.textContent = "🟢 " + provLabel + " (" + apiConfig.model + ")";
+          headerBadge.className = "px-2 py-0.5 text-[11px] rounded-full bg-emerald-950/90 text-emerald-300 font-bold border border-emerald-400/40";
+        }
+        if (inlineDot) inlineDot.className = "w-3 h-3 rounded-full bg-emerald-400 animate-pulse flex-shrink-0";
+        if (inlineLabel) {
+          inlineLabel.textContent = "បានភ្ជាប់ " + provLabel + " (" + apiConfig.model + ") រួចរាល់! ពេលលោកគ្រូ Paste មេរៀនណាមួយ AI នឹងសរសេរកិច្ចតែងការលម្អិតតាមសៀវភៅនីមួយៗដោយស្វ័យប្រវត្តិ។";
+        }
+        if (modalStatusMsg) {
+          modalStatusMsg.textContent = "🟢 បានភ្ជាប់ " + provLabel + " (" + apiConfig.model + ") រួចរាល់សម្រាប់ប្រើដាច់ដោយឡែក។";
+        }
+      } else {
+        if (headerDot) headerDot.className = "w-2.5 h-2.5 rounded-full bg-amber-400";
+        if (headerBadge) {
+          headerBadge.textContent = "Offline Mode";
+          headerBadge.className = "px-2 py-0.5 text-[11px] rounded-full bg-slate-900/70 text-amber-300 font-semibold";
+        }
+        if (inlineDot) inlineDot.className = "w-3 h-3 rounded-full bg-amber-400 flex-shrink-0";
+        if (inlineLabel) {
+          inlineLabel.textContent = "កំពុងប្រើប្រព័ន្ធឆ្លាតវៃក្នុងកម្មវិធី (Offline Smart Engine) — ចុច «ភ្ជាប់ / គ្រប់គ្រង API Key» ដើម្បីឱ្យ AI សរសេរខ្លឹមសារមេរៀនគ្រប់ទំព័រដោយស្វ័យប្រវត្តិ!";
+        }
+        if (modalStatusMsg) {
+          modalStatusMsg.textContent = "ស្ថានភាពបច្ចុប្បន្ន៖ មិនទាន់បានភ្ជាប់ API Key (កំពុងប្រើប្រព័ន្ធ Offline Smart Engine)";
+        }
+      }
+    }
+
+    function buildAiSystemPrompt(parsed) {
+      var g = parsed.grade || "៣";
+      var books = GRADE_BOOKS_META[g] || GRADE_BOOKS_META["៣"];
+      return [
+        "អ្នកគឺជាអ្នកជំនាញបង្កើតកិច្ចតែងការបង្រៀនកម្មវិធីកញ្ចប់គណិតវិទ្យាថ្នាក់ដំបូង (ថ្នាក់ទី១-៣) នៃក្រសួងអប់រំ យុវជន និងកីឡា (MoEYS / STEPCam / MCAS) នៅប្រទេសកម្ពុជា។",
+        "សូមបង្កើតទិន្នន័យកិច្ចតែងការបង្រៀនជាទម្រង់ JSON Object តែមួយគត់ (ហាមសរសេរអត្ថបទក្រៅពី JSON) ស្របតាមព័ត៌មានដែលបានផ្គូផ្គងពីសៀវភៅផ្លូវការខាងក្រោម៖",
+        "- កម្រិតថ្នាក់៖ ថ្នាក់ទី" + g,
+        "- រយៈពេល៖ " + parsed.duration,
+        "- សៀវភៅសិស្ស (" + books.studentBookTitle + ")៖ មេរៀនទី" + parsed.lessonNumKh + "៖ " + parsed.officialTocTitle + " (សស. ទំព័រ " + parsed.ssPage + ")",
+        "- សៀវភៅណែនាំគ្រូ (" + books.teacherGuideTitle + ")៖ ខ្លឹមសាររង៖ " + parsed.tgCodePrefix + " " + parsed.subTopicTitle + " (ស.គ្រូ ទំព័រ " + parsed.tgPage + ")",
+        "- សកម្មភាពបង្រៀន៖ សកម្មភាពទី" + parsed.tgActKh + "៖ " + parsed.subTopicTitle + " ទំព័រ " + parsed.tgPage + " (សៀវភៅណែនាំគ្រូ បោះពុម្ពឆ្នាំ២០២៤)",
+        "- កម្រិតស្ដង់ដារ MCAS (" + books.standardBookTitle + ")៖ " + parsed.standardLevel,
+        apiConfig.customInstructions ? ("- ការណែនាំបន្ថែមរបស់គ្រូ៖ " + apiConfig.customInstructions) : "",
+        "",
+        "កំហិតដាច់ខាតសម្រាប់តម្លៃក្នុង JSON Object៖",
+        "1. mainLesson: ត្រូវតែប្រើចំណងជើងមេរៀនធំពីមាតិកាសៀវភៅសិស្ស គឺ «មេរៀនទី" + parsed.lessonNumKh + "៖ " + parsed.officialTocTitle + " (សស. ទំព័រ " + parsed.ssPage + ")»",
+        "2. subTopic: ត្រូវតែប្រើ «ខ្លឹមសាររង៖ " + parsed.tgCodePrefix + " " + parsed.subTopicTitle + " (ស.គ្រូ ទំព័រ " + parsed.tgPage + ")»",
+        "3. expectedOutcome: លទ្ធផលរំពឹងទុកជាក់លាក់ស្របតាមសៀវភៅណែនាំគ្រូទំព័រ " + parsed.tgPage,
+        "4. activityTitle: «សកម្មភាពទី" + parsed.tgActKh + "៖ " + parsed.subTopicTitle + " ទំព័រ " + parsed.tgPage + " (សៀវភៅណែនាំគ្រូ បោះពុម្ពឆ្នាំ២០២៤)»",
+        "5. objKnowledge, objSkill, objAttitude: វត្ថុបំណងទាំង ៣ ផ្នែក (វិជ្ជាសម្បទា បំណិនសម្បទា ចរិយាសម្បទា) ច្បាស់លាស់ ផ្សារភ្ជាប់នឹងសម្ភាររូបី និងជីវភាពនៅភូមិថ្លុកបង្កោ ខេត្តពោធិ៍សាត់",
+        "6. matTeacher, matStudent: សម្ភារៈឧបទេសជាក់ស្ដែង និងសម្ភាររូបី (បន្ទាត់ម៉ែត្រ/បាច់បំពង់បឺត/បន្ទះតម្លៃខ្ទង់/ដ្យាក្រាមរបារ/បណ្ណសញ្ញាចរាចរ បៃតង-ក្រហម)",
+        "7. step2Review: សំណួរ និងលំហាត់រំឭកមេរៀនចាស់លើក្ដារឆ្នួន រួចភ្ជាប់ទំនាក់ទំនងទៅមេរៀនថ្មី",
+        "8. step3PairWork: សកម្មភាពបង្ហាញសម្ភាររូបីរបស់គ្រូ និងការងារដៃគូសិស្សពិភាក្សាតាមសកម្មភាពទី" + parsed.tgActKh + " (ទំព័រ " + parsed.tgPage + ") និងសៀវភៅសិស្សទំព័រ " + parsed.ssPage,
+        "9. step3KeyRule: វិធានគណិតវិទ្យាគន្លឹះ និយមន័យ ឬជំហានគណនា និងឧទាហរណ៍គំរូជាក់លាក់ (ប្រើសញ្ញា • និងចុះបន្ទាត់ \\n)",
+        "10. step3GroupGame: ឈ្មោះល្បែងសិក្សាគណិតវិទ្យា និងសកម្មភាពក្រុមដោះស្រាយលំហាត់ក្នុងសៀវភៅសិស្សទំព័រ " + parsed.ssPage,
+        "11. misconceptions: ចំណុចកំហិត «កំហុស និងគំនិតភាន់ច្រឡំ» របស់សិស្ស និងវិធីជួយកែតម្រូវ (Remedial Support) ស្របតាមសៀវភៅស្ដង់ដាគណិតវិទ្យា MCAS (" + parsed.standardLevel + ")",
+        "12. step4Practice: លំហាត់ពង្រឹងចំណេះដឹង ៣-៤ ខ្ទង់ (ក, ខ, គ) មានចម្លើយក្នុងវង់ក្រចក សម្រាប់សិស្សធ្វើលើក្ដារឆ្នួន និងលើកបណ្ណសញ្ញាចរាចរ",
+        "13. step5Homework: កិច្ចការផ្ទះក្នុងសៀវភៅសិស្សទំព័រ " + parsed.ssPage + " និងការអនុវត្តជាក់ស្ដែងនៅផ្ទះ",
+        "14. barA, barB, placeNum: ចំនួនគត់ (Integer) សមស្របនឹងមេរៀនសម្រាប់បង្ហាញលើដ្យាក្រាមរបារ និងតារាងតម្លៃខ្ទង់។"
+      ].join("\\n");
+    }
+
+    async function callExternalAiApi(rawPrompt, parsed) {
+      var key = (apiConfig.apiKey || "").trim();
+      if (!key) throw new Error("មិនទាន់មាន API Key");
+
+      var sysPrompt = buildAiSystemPrompt(parsed);
+      var userMsg = "សូមបង្កើតកិច្ចតែងការបង្រៀនលម្អិតសម្រាប់៖\\n" + rawPrompt;
+
+      var responseText = "";
+      if (apiConfig.provider === "gemini") {
+        var modelName = apiConfig.model || "gemini-2.5-flash";
+        if (modelName.indexOf("gemini") === -1) modelName = "gemini-2.5-flash";
+        var url = "https://generativelanguage.googleapis.com/v1beta/models/" + encodeURIComponent(modelName) + ":generateContent?key=" + encodeURIComponent(key);
+        var body = {
+          systemInstruction: { parts: [{ text: sysPrompt }] },
+          contents: [{ role: "user", parts: [{ text: userMsg }] }],
+          generationConfig: {
+            temperature: 0.3,
+            responseMimeType: "application/json"
+          }
+        };
+        var resp = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        if (!resp.ok) {
+          var errTxt = await resp.text();
+          throw new Error("Gemini API Error (" + resp.status + "): " + errTxt.slice(0, 160));
+        }
+        var data = await resp.json();
+        responseText = (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0].text) || "";
+      } else {
+        var endpoint = apiConfig.provider === "openai"
+          ? "https://api.openai.com/v1/chat/completions"
+          : (apiConfig.customEndpoint || "https://openrouter.ai/api/v1/chat/completions");
+        var oaModel = apiConfig.model || "gpt-4o-mini";
+        var oaBody = {
+          model: oaModel,
+          temperature: 0.3,
+          messages: [
+            { role: "system", content: sysPrompt },
+            { role: "user", content: userMsg }
+          ]
+        };
+        var oaResp = await fetch(endpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + key
+          },
+          body: JSON.stringify(oaBody)
+        });
+        if (!oaResp.ok) {
+          var oaErr = await oaResp.text();
+          throw new Error("API Error (" + oaResp.status + "): " + oaErr.slice(0, 160));
+        }
+        var oaData = await oaResp.json();
+        responseText = (oaData.choices && oaData.choices[0] && oaData.choices[0].message && oaData.choices[0].message.content) || "";
+      }
+
+      var cleanedJson = responseText.trim().replace(/^```(?:json)?\\s*/i, "").replace(/\\s*```$/, "").trim();
+      var obj = JSON.parse(cleanedJson);
+      return obj;
+    }
+
+    function downloadStandaloneHtmlApp() {
+      var fullHtml = "<!DOCTYPE html>\\n" + document.documentElement.outerHTML;
+      var blob = new Blob([fullHtml], { type: "text/html;charset=utf-8" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "កម្មវិធី_AI_Agent_កញ្ចប់គណិតវិទ្យា_Standalone.html";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      showToast("បានទាញយកកម្មវិធី (.html) សម្រាប់បើកប្រើដាច់ដោយឡែកដោយជោគជ័យ!", "💻");
+    }
+
+    async function generateLessonFromPrompt(promptText) {
+      var q = (promptText || "").trim();
+      if (!q) {
+        showToast("សូមបិទភ្ជាប់ (Paste) ឬវាយបញ្ចូលប្រធានបទមេរៀនជាមុនសិន!", "⚠️");
+        return;
+      }
+
+      var parsed = parseSmartScheduleInput(q);
+      var g = parsed.grade;
+      var mainLessonStr = "មេរៀនទី" + parsed.lessonNumKh + "៖ " + parsed.officialTocTitle + " (សស. ទំព័រ " + parsed.ssPage + ")";
+      var subTopicStr = "ខ្លឹមសាររង៖ " + parsed.tgCodePrefix + " " + parsed.subTopicTitle + " (ស.គ្រូ ទំព័រ " + parsed.tgPage + ")";
+      var actTitleStr = "សកម្មភាពទី" + parsed.tgActKh + "៖ " + parsed.subTopicTitle + " ទំព័រ " + parsed.tgPage + " (សៀវភៅណែនាំគ្រូ បោះពុម្ពឆ្នាំ២០២៤)";
+
+      // Check if it specifically matches "ការប្តូរខ្នាតប្រវែង" (or Lesson 5 Length Conversion)
+      var combinedText = parsed.officialTocTitle + " " + parsed.subTopicTitle + " " + q;
+      var plan;
+
+      if (combinedText.indexOf("ប្តូរខ្នាតប្រវែង") !== -1 || (combinedText.indexOf("ប្រវែង") !== -1 && combinedText.indexOf("ប្តូរ") !== -1)) {
+        plan = JSON.parse(JSON.stringify(LESSON_PRESETS[0]));
+        plan.grade = g;
+        plan.duration = parsed.duration;
+        plan.mainLesson = mainLessonStr;
+        plan.subTopic = subTopicStr;
+        plan.activityTitle = actTitleStr;
+        plan.standardLevel = parsed.standardLevel;
+      } else if (combinedText.indexOf("ប្រវែង") !== -1) {
+        plan = {
+          grade: g,
+          duration: parsed.duration,
+          standardLevel: parsed.standardLevel,
+          mainLesson: mainLessonStr,
+          subTopic: subTopicStr,
+          expectedOutcome: "លទ្ធផលរំពឹងទុក៖ សិស្សវាស់ ប៉ាន់ស្មាន និងប្រៀបធៀបប្រវែង (" + parsed.subTopicTitle + ") បានត្រឹមត្រូវតាមសៀវភៅណែនាំគ្រូ។",
+          activityTitle: actTitleStr,
+          objKnowledge: "សិស្សប្រាប់បានពីបញ្ញត្តិ ឧបករណ៍វាស់ និងវិធាននៃ «" + parsed.subTopicTitle + "» បានត្រឹមត្រូវតាមរយៈការបង្ហាញបន្ទាត់ម៉ែត្រ និងសម្ភាររូបីរបស់គ្រូ។",
+          objSkill: "សិស្សអនុវត្តវាស់ ប៉ាន់ស្មាន ឬគណនាប្រវែងលើខ្លឹមសារ «" + parsed.subTopicTitle + "» លើក្ដារឆ្នួន និងសៀវភៅសិស្សទំព័រ " + parsed.ssPage + " បានត្រឹមត្រូវតាមរយៈការងារដៃគូ និងក្រុម។",
+          objAttitude: "សិស្សមានទំនុកចិត្ត ស្មារតីសហការ និងភាពផ្ចិតផ្ចង់ក្នុងការវាស់វែងវត្ថុប្រើប្រាស់ប្រចាំថ្ងៃនៅភូមិថ្លុកបង្កោបានត្រឹមត្រូវ។",
+          matTeacher: "សៀវភៅណែនាំគ្រូថ្នាក់ទី" + g + " (ទំព័រ " + parsed.tgPage + "), សៀវភៅសិស្សទំព័រ " + parsed.ssPage + ", សៀវភៅស្ដង់ដា MCAS, បន្ទាត់ឈើ ១ ម៉ែត្រ, បន្ទាត់ក្រិតសង់ទីម៉ែត្រ, បណ្ណសញ្ញាចរាចរ (បៃតង/ក្រហម)។",
+          matStudent: "ក្ដារឆ្នួន ហ្វឺត បន្ទាត់ក្រិតសង់ទីម៉ែត្រ សៀវភៅសិស្សថ្នាក់ទី" + g + " (ទំព័រ " + parsed.ssPage + ") និងសៀវភៅជំនួយ។",
+          step2Review: "រំឭកចំណេះដឹងមេរៀនមុនអំពីខ្នាតប្រវែងលើក្ដារឆ្នួន រួចបង្ហាញបន្ទាត់ម៉ែត្រ និងវត្ថុជាក់ស្ដែងក្នុងថ្នាក់ដើម្បីភ្ជាប់ទៅមេរៀនថ្មី «" + parsed.subTopicTitle + "»។",
+          step3PairWork: "គ្រូបង្ហាញសកម្មភាពទី" + parsed.tgActKh + " (ស.គ្រូ ទំព័រ " + parsed.tgPage + ") ដោយប្រើបន្ទាត់ស្ដង់ដារ និងវត្ថុជាក់ស្ដែង។ សិស្សចាប់ដៃគូសង្កេត ពិភាក្សា និងអនុវត្តផ្ទៀងផ្ទាត់តាមសៀវភៅសិស្សទំព័រ " + parsed.ssPage + "។",
+          step3KeyRule: "• ពេលវាស់ប្រវែង ត្រូវដាក់គល់បន្ទាត់ឱ្យចំគំនូសលេខសូន្យ (០) ជានិច្ច។\n• ទំនាក់ទំនងខ្នាតប្រវែង៖ ១ ម = ១០ ដម = ១០០ សម ; ១ ដម = ១០ សម ; ១ សម = ១០ មម។\n• សរសេរតម្លៃលេខភ្ជាប់ជាមួយខ្នាតផ្លូវការជានិច្ច។",
+          step3GroupGame: "ល្បែងសិក្សា «វាស់វែង និងផ្គូផ្គងបណ្ណប្រវែង»៖ ក្រុមសិស្សសហការគ្នាដោះស្រាយលំហាត់ក្នុងសៀវភៅសិស្សទំព័រ " + parsed.ssPage + " និងសៀវភៅជំនួយ។",
+          misconceptions: "• សិស្សដាក់គល់វត្ថុចាប់ពីលេខ ១ ឬចុងគែមបន្ទាត់ជំនួសឱ្យគំនូសលេខសូន្យ (០)។\n• សិស្សភាន់ច្រឡំខ្នាត ម៉ែត្រ (ម) ដេស៊ីម៉ែត្រ (ដម) និងសង់ទីម៉ែត្រ (សម) ឬភ្លេចសរសេរខ្នាតនៅពីក្រោយចំនួន។",
+          step4Practice: "ឱ្យសិស្សអនុវត្តលំហាត់ពង្រឹងលើក្ដារឆ្នួនតាមសៀវភៅសិស្សទំព័រ " + parsed.ssPage + " និងលើកបណ្ណសញ្ញាចរាចរ (បៃតង=ត្រូវ, ក្រហម=ខុស)។",
+          step5Homework: "ធ្វើលំហាត់ក្នុងសៀវភៅសិស្សថ្នាក់ទី" + g + " ទំព័រ " + parsed.ssPage + " ចូលក្នុងសៀវភៅសរសេរ និងអនុវត្តវាស់វត្ថុនៅផ្ទះ។",
+          barA: 100,
+          barB: 50,
+          placeNum: 150
+        };
+      } else if (combinedText.indexOf("ទម្ងន់") !== -1) {
+        plan = JSON.parse(JSON.stringify(LESSON_PRESETS[4]));
+        plan.grade = g;
+        plan.duration = parsed.duration;
+        plan.mainLesson = mainLessonStr;
+        plan.subTopic = subTopicStr;
+        plan.activityTitle = actTitleStr;
+        plan.standardLevel = parsed.standardLevel;
+      } else if (combinedText.indexOf("ធរណីមាត្រ") !== -1 || combinedText.indexOf("បន្ទាត់") !== -1 || combinedText.indexOf("ខ្សែកោង") !== -1) {
+        plan = JSON.parse(JSON.stringify(LESSON_PRESETS[1]));
+        plan.grade = g;
+        plan.duration = parsed.duration;
+        plan.mainLesson = mainLessonStr;
+        plan.subTopic = subTopicStr;
+        plan.activityTitle = actTitleStr;
+        plan.standardLevel = parsed.standardLevel;
+      } else if (combinedText.indexOf("ចែក") !== -1) {
+        plan = JSON.parse(JSON.stringify(LESSON_PRESETS[2]));
+        plan.grade = g;
+        plan.duration = parsed.duration;
+        plan.mainLesson = mainLessonStr;
+        plan.subTopic = subTopicStr;
+        plan.activityTitle = actTitleStr;
+        plan.standardLevel = parsed.standardLevel;
+      } else if (combinedText.indexOf("គុណ") !== -1) {
+        plan = JSON.parse(JSON.stringify(LESSON_PRESETS[3]));
+        plan.grade = g;
+        plan.duration = parsed.duration;
+        plan.mainLesson = mainLessonStr;
+        plan.subTopic = subTopicStr;
+        plan.activityTitle = actTitleStr;
+        plan.standardLevel = parsed.standardLevel;
+      } else if (combinedText.indexOf("បូក") !== -1) {
+        plan = JSON.parse(JSON.stringify(LESSON_PRESETS[5]));
+        plan.grade = g;
+        plan.duration = parsed.duration;
+        plan.mainLesson = mainLessonStr;
+        plan.subTopic = subTopicStr;
+        plan.activityTitle = actTitleStr;
+        plan.standardLevel = parsed.standardLevel;
+      } else {
+        plan = {
+          grade: g,
+          duration: parsed.duration,
+          standardLevel: parsed.standardLevel,
+          mainLesson: mainLessonStr,
+          subTopic: subTopicStr,
+          expectedOutcome: "លទ្ធផលរំពឹងទុក៖ សិស្សយល់ខ្លឹមសារគន្លឹះ និងអនុវត្តលំហាត់លើប្រធានបទ «" + parsed.subTopicTitle + "» បានត្រឹមត្រូវតាមសៀវភៅណែនាំគ្រូ។",
+          activityTitle: actTitleStr,
+          objKnowledge: "សិស្សប្រាប់បានពីវិធានគន្លឹះ និងជំហានដោះស្រាយលំហាត់ក្នុងមេរៀន «" + parsed.subTopicTitle + "» បានត្រឹមត្រូវតាមរយៈការបង្ហាញសម្ភាររូបីរបស់គ្រូ។",
+          objSkill: "សិស្សអនុវត្តគណនា និងដោះស្រាយលំហាត់លើប្រធានបទ «" + parsed.subTopicTitle + "» ក្នុងសៀវភៅសិស្សទំព័រ " + parsed.ssPage + " បានត្រឹមត្រូវតាមរយៈការងារដៃគូ ក្រុម និងបុគ្គល។",
+          objAttitude: "សិស្សមានទំនុកចិត្ត ស្មារតីសហការ និងភាពផ្ចិតផ្ចង់ក្នុងការប្រើប្រាស់ចំណេះដឹង «" + parsed.subTopicTitle + "» នៅក្នុងជីវភាពប្រចាំថ្ងៃបានត្រឹមត្រូវ។",
+          matTeacher: "សៀវភៅណែនាំគ្រូថ្នាក់ទី" + g + " (ទំព័រ " + parsed.tgPage + "), សៀវភៅសិស្សថ្នាក់ទី" + g + " (ទំព័រ " + parsed.ssPage + "), សៀវភៅស្ដង់ដារគណិតវិទ្យា MCAS, បាច់បំពង់បឺត, បន្ទះតម្លៃខ្ទង់, ដ្យាក្រាមរបារ Bar Model, បណ្ណសញ្ញាចរាចរ (បៃតង/ក្រហម)។",
+          matStudent: "ក្ដារឆ្នួន ហ្វឺត/ដីស គ្រាប់រាប់ សៀវភៅសិស្សថ្នាក់ទី" + g + " (ទំព័រ " + parsed.ssPage + ") និងសៀវភៅជំនួយគណិតវិទ្យា។",
+          step2Review: "គ្រូសួរសំណួររំឭកមេរៀនមុនលើក្ដារឆ្នួន រួចលើកឧទាហរណ៍ជាក់ស្ដែងក្នុងជីវភាពនៅភូមិថ្លុកបង្កោ ដើម្បីភ្ជាប់ទំនាក់ទំនងទៅមេរៀនថ្មី «" + parsed.subTopicTitle + "»។",
+          step3PairWork: "គ្រូបង្ហាញសម្ភាររូបីតាមសកម្មភាពទី" + parsed.tgActKh + " (ស.គ្រូ ទំព័រ " + parsed.tgPage + ") តាងខ្លឹមសារ «" + parsed.subTopicTitle + "»។ សិស្សចាប់ដៃគូសង្កេត អនុវត្តជាមួយសម្ភាររូបី និងពិភាក្សារកចម្លើយតាមសៀវភៅសិស្សទំព័រ " + parsed.ssPage + "។",
+          step3KeyRule: "• ខ្លឹមសារគន្លឹះស្ដង់ដារ (" + parsed.subTopicTitle + ")៖ សង្កេតទិន្នន័យ រៀបចំតាមតម្លៃខ្ទង់/ដ្យាក្រាមរបារ Bar Model និងអនុវត្តតាមជំហានគណិតវិទ្យាឱ្យបានត្រឹមត្រូវ។\n• ផ្ទៀងផ្ទាត់ចម្លើយដោយប្រើសម្ភាររូបី និងសៀវភៅសិស្សទំព័រ " + parsed.ssPage + "។",
+          step3GroupGame: "ល្បែងសិក្សា «បង្វិលថាស និងផ្គូផ្គងបណ្ណគណិតវិទ្យា»៖ សិស្សចូលក្រុមដោះស្រាយលំហាត់ក្នុងសៀវភៅសិស្សទំព័រ " + parsed.ssPage + " និងសៀវភៅជំនួយ រួចតំណាងក្រុមឡើងបង្ហាញលើក្ដារខៀន។",
+          misconceptions: "• សិស្សដាក់លេខមិនត្រូវតាមខ្ទង់ ឬអនុវត្តខុសលំដាប់ជំហាននៃប្រមាណវិធីក្នុងមេរៀន «" + parsed.subTopicTitle + "»។\n• សិស្សភាន់ច្រឡំសញ្ញា ឬខ្នាតក្នុងចំណោទ និងភ្លេចផ្ទៀងផ្ទាត់ចម្លើយ។\n• វិធីជួយកែតម្រូវ (Remedial Support)៖ គ្រូប្រើសម្ភាររូបី និងដ្យាក្រាមរបារ Bar Model ពន្យល់បន្ថែមដល់សិស្សដែលជួបការលំបាក។",
+          step4Practice: "គ្រូដាក់លំហាត់ពង្រឹងចំណេះដឹងស្រង់ពីសៀវភៅសិស្សទំព័រ " + parsed.ssPage + " ឱ្យសិស្សគណនាលើក្ដារឆ្នួន និងលើកបណ្ណសញ្ញាចរាចរ (បៃតង=ត្រូវ, ក្រហម=ខុស)។",
+          step5Homework: "ឱ្យសិស្សធ្វើលំហាត់ក្នុងសៀវភៅសិស្សថ្នាក់ទី" + g + " ទំព័រ " + parsed.ssPage + " ចូលក្នុងសៀវភៅសរសេរ និងអនុវត្តបន្ថែមនៅផ្ទះ។",
+          barA: 25,
+          barB: 15,
+          placeNum: 145
+        };
+      }
+
+      applyPresetToForm(plan);
+      renderParsedBooksPanel(parsed);
+
+      if (hasActiveApiKey() && !isCallingAiApi) {
+        isCallingAiApi = true;
+        var runBtn = document.getElementById("btnRunAiAgent");
+        var statusTextEl = document.getElementById("aiStatusText");
+        if (runBtn) {
+          runBtn.disabled = true;
+          runBtn.innerHTML = '<span>⏳ កំពុងបង្កើតតាមរយៈ AI API (' + esc(apiConfig.model) + ')...</span>';
+        }
+        if (statusTextEl) {
+          statusTextEl.textContent = "⏳ កំពុងហៅ AI API (" + apiConfig.model + ") ដើម្បីរៀបចំខ្លឹមសារលម្អិតតាមសៀវភៅថ្នាក់ទី" + g + "...";
+        }
+        try {
+          var aiResult = await callExternalAiApi(q, parsed);
+          var mergedPlan = {
+            grade: g,
+            duration: parsed.duration,
+            standardLevel: parsed.standardLevel,
+            mainLesson: aiResult.mainLesson || mainLessonStr,
+            subTopic: aiResult.subTopic || subTopicStr,
+            expectedOutcome: aiResult.expectedOutcome || plan.expectedOutcome,
+            activityTitle: aiResult.activityTitle || actTitleStr,
+            objKnowledge: aiResult.objKnowledge || plan.objKnowledge,
+            objSkill: aiResult.objSkill || plan.objSkill,
+            objAttitude: aiResult.objAttitude || plan.objAttitude,
+            matTeacher: aiResult.matTeacher || plan.matTeacher,
+            matStudent: aiResult.matStudent || plan.matStudent,
+            step2Review: aiResult.step2Review || plan.step2Review,
+            step3PairWork: aiResult.step3PairWork || plan.step3PairWork,
+            step3KeyRule: aiResult.step3KeyRule || plan.step3KeyRule,
+            step3GroupGame: aiResult.step3GroupGame || plan.step3GroupGame,
+            misconceptions: aiResult.misconceptions || plan.misconceptions,
+            step4Practice: aiResult.step4Practice || plan.step4Practice,
+            step5Homework: aiResult.step5Homework || plan.step5Homework,
+            barA: parseInt(aiResult.barA, 10) || plan.barA || 200,
+            barB: parseInt(aiResult.barB, 10) || plan.barB || 35,
+            placeNum: parseInt(aiResult.placeNum, 10) || plan.placeNum || 235
+          };
+          applyPresetToForm(mergedPlan);
+          if (statusTextEl) {
+            statusTextEl.textContent = "✨ បានបង្កើតដោយផ្ទាល់ពី AI API (" + apiConfig.model + ") ស្របតាមសៀវភៅថ្នាក់ទី" + g + "៖";
+          }
+          showToast("បានបង្កើតកិច្ចតែងការពី AI API (" + apiConfig.model + ") ដោយជោគជ័យ!", "✨");
+        } catch (err) {
+          if (statusTextEl) {
+            statusTextEl.textContent = "⚠️ ការហៅ API មានបញ្ហា (" + err.message + ") — បានប្រើប្រព័ន្ធ Offline Smart Engine ជំនួស៖";
+          }
+          showToast("បានប្រើប្រព័ន្ធ Offline Smart Engine (សូមពិនិត្យ API Key ឬអ៊ីនធឺណិត)", "⚠️");
+        } finally {
+          isCallingAiApi = false;
+          if (runBtn) {
+            runBtn.disabled = false;
+            runBtn.innerHTML = '<span>⚡ បង្កើតកិច្ចតែងការដោយ AI Agent</span>';
+          }
+        }
+      } else {
+        showToast("បានបង្កើតកិច្ចតែងការភ្លាមៗតាមសៀវភៅថ្នាក់ទី" + g + " (" + parsed.subTopicTitle + ")!", "⚡");
+      }
+    }
+
+    function renderParsedBooksPanel(parsed) {
+      var g = parsed.grade || "៣";
+      var books = GRADE_BOOKS_META[g] || GRADE_BOOKS_META["៣"];
+
+      var statusText = document.getElementById("aiStatusText");
+      if (statusText) {
+        statusText.textContent = "បានផ្គូផ្គងត្រឹមត្រូវតាមមាតិកាសៀវភៅសិស្ស សៀវភៅណែនាំគ្រូ និងសៀវភៅស្ដង់ដារគណិតវិទ្យាថ្នាក់ទី" + g + "៖";
+      }
+
+      var gradeBadge = document.getElementById("detectedGradeBadge");
+      if (gradeBadge) {
+        gradeBadge.textContent = "ថ្នាក់ទី" + g + " • " + parsed.duration + " • " + parsed.standardLevel;
+      }
+
+      var breakdownEl = document.getElementById("parsedBooksBreakdown");
+      if (breakdownEl) {
+        breakdownEl.innerHTML =
+          '<div class="p-2.5 rounded-lg bg-blue-50/90 border border-blue-200 flex flex-col justify-between">' +
+            '<div>' +
+              '<div class="font-bold text-blue-950 flex items-center justify-between"><span>📖 ១. សៀវភៅសិស្ស (សស.)</span><span class="px-1.5 py-0.5 rounded bg-blue-900 text-white text-[10px]">ទំ. ' + esc(parsed.ssPage) + '</span></div>' +
+              '<p class="text-slate-800 font-semibold mt-1">មេរៀនទី' + esc(parsed.lessonNumKh) + '៖ ' + esc(parsed.officialTocTitle) + '</p>' +
+              '<p class="text-slate-600 text-[11px]">ខ្លឹមសារ៖ ' + esc(parsed.subTopicTitle) + '</p>' +
+            '</div>' +
+            '<a href="' + esc(books.studentBookUrl) + '" target="_blank" rel="noopener noreferrer" class="mt-1.5 text-[11px] font-bold text-blue-800 hover:underline inline-flex items-center gap-1">បើកមើល' + esc(books.studentBookTitle) + ' ↗</a>' +
+          '</div>' +
+          '<div class="p-2.5 rounded-lg bg-indigo-50/90 border border-indigo-200 flex flex-col justify-between">' +
+            '<div>' +
+              '<div class="font-bold text-indigo-950 flex items-center justify-between"><span>📘 ២. សៀវភៅណែនាំគ្រូ (សគ.)</span><span class="px-1.5 py-0.5 rounded bg-indigo-900 text-white text-[10px]">ទំ. ' + esc(parsed.tgPage) + '</span></div>' +
+              '<p class="text-slate-800 font-semibold mt-1">' + esc(parsed.tgCodePrefix) + '</p>' +
+              '<p class="text-slate-600 text-[11px]">សកម្មភាពទី' + esc(parsed.tgActKh) + '៖ ' + esc(parsed.subTopicTitle) + '</p>' +
+            '</div>' +
+            '<a href="' + esc(books.teacherGuideUrl) + '" target="_blank" rel="noopener noreferrer" class="mt-1.5 text-[11px] font-bold text-indigo-800 hover:underline inline-flex items-center gap-1">បើកមើល' + esc(books.teacherGuideTitle) + ' ↗</a>' +
+          '</div>' +
+          '<div class="p-2.5 rounded-lg bg-amber-50/90 border border-amber-200 flex flex-col justify-between">' +
+            '<div>' +
+              '<div class="font-bold text-amber-950 flex items-center justify-between"><span>⭐ ៣. សៀវភៅស្ដង់ដារ & ជំនួយ</span><span class="px-1.5 py-0.5 rounded bg-amber-500 text-slate-950 text-[10px]">MCAS/CLM</span></div>' +
+              '<p class="text-slate-800 font-semibold mt-1">' + esc(parsed.standardLevel) + '</p>' +
+              '<p class="text-slate-600 text-[11px]">បញ្ចូល «៣. កំហុស និងគំនិតភាន់ច្រឡំ» រួចរាល់</p>' +
+            '</div>' +
+            '<a href="' + esc(books.standardBookUrl) + '" target="_blank" rel="noopener noreferrer" class="mt-1.5 text-[11px] font-bold text-amber-900 hover:underline inline-flex items-center gap-1">បើកមើល' + esc(books.standardBookTitle) + ' ↗</a>' +
+          '</div>';
+      }
+    }
+
+    // =========================================================================
+    // 5. HTML ESCAPE & LESSON PLAN SHEET RENDERER (EXACT 3-COLUMN TEMPLATE)
+    // =========================================================================
+    function esc(str) {
+      return String(str || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function formatMultiline(str) {
+      return esc(str).replace(/\n/g, "<br/>");
+    }
+
+    function buildOfficialLessonPlanHtml(state, isEditable) {
+      var editAttr = isEditable ? ' contenteditable="true"' : '';
+      var books = GRADE_BOOKS_META[state.grade] || GRADE_BOOKS_META["៣"];
+
+      return '' +
+        '<div class="space-y-4 ' + (isEditable ? 'editable-active' : '') + '">' +
+          '<!-- Official Kingdom & Motto Header -->' +
+          '<div class="text-center space-y-1 pb-2 border-b-2 border-slate-800">' +
+            '<p class="khmer-moul text-sm sm:text-base text-slate-900">ព្រះរាជាណាចក្រកម្ពុជា</p>' +
+            '<p class="khmer-moul text-xs sm:text-sm text-slate-800">ជាតិ សាសនា ព្រះមហាក្សត្រ</p>' +
+            '<p class="khmer-moul text-base sm:text-lg text-blue-950 pt-2">កិច្ចតែងការបង្រៀន</p>' +
+          '</div>' +
+
+          '<!-- Metadata Block -->' +
+          '<div class="bg-slate-50/80 border border-slate-300 rounded-lg p-3.5 text-xs sm:text-sm space-y-1"' + editAttr + '>' +
+            '<div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-1">' +
+              '<p><strong>ថ្នាក់ទី៖</strong> ' + esc(state.grade) + '</p>' +
+              '<p><strong>មុខវិជ្ជា៖</strong> គណិតវិទ្យា (កម្មវិធីកញ្ចប់គណិតវិទ្យា)</p>' +
+              '<p class="sm:col-span-2"><strong>សាលាបឋមសិក្សា៖</strong> ' + esc(state.school) + '</p>' +
+              '<p><strong>បង្រៀនដោយ៖</strong> ' + esc(state.teacher) + '</p>' +
+              '<p><strong>រយៈពេល៖</strong> ' + esc(state.duration) + '</p>' +
+            '</div>' +
+            '<div class="pt-1.5 border-t border-slate-200 space-y-1">' +
+              '<p><strong>' + esc(state.mainLesson) + '</strong></p>' +
+              '<p><strong>' + esc(state.subTopic) + '</strong></p>' +
+              '<p><strong>' + esc(state.expectedOutcome) + '</strong></p>' +
+              '<p><strong>' + esc(state.activityTitle) + '</strong> <span class="inline-block px-2 py-0.5 text-xs rounded bg-blue-100 text-blue-900 font-bold">(' + esc(state.standardLevel) + ')</span></p>' +
+            '</div>' +
+            '<div class="pt-1.5 border-t border-slate-200 text-[11px] sm:text-xs text-slate-700">' +
+              '<strong>ឯកសារយោងផ្លូវការ៖</strong> ' +
+              '<a href="' + esc(books.studentBookUrl) + '" target="_blank" rel="noopener noreferrer" class="text-blue-800 underline font-semibold">' + esc(books.studentBookTitle) + '</a> • ' +
+              '<a href="' + esc(books.teacherGuideUrl) + '" target="_blank" rel="noopener noreferrer" class="text-blue-800 underline font-semibold">' + esc(books.teacherGuideTitle) + '</a> • ' +
+              '<a href="' + esc(books.standardBookUrl) + '" target="_blank" rel="noopener noreferrer" class="text-blue-800 underline font-semibold">' + esc(books.standardBookTitle) + '</a>' +
+            '</div>' +
+          '</div>' +
+
+          '<!-- វត្ថុបំណង -->' +
+          '<div class="space-y-1 text-xs sm:text-sm"' + editAttr + '>' +
+            '<h3 class="khmer-moul text-xs sm:text-sm text-blue-950">I. វត្ថុបំណង</h3>' +
+            '<ul class="list-disc pl-5 space-y-1">' +
+              '<li><strong>វិជ្ជាសម្បទា៖</strong> ' + esc(state.objKnowledge) + '</li>' +
+              '<li><strong>បំណិនសម្បទា៖</strong> ' + esc(state.objSkill) + '</li>' +
+              '<li><strong>ចរិយាសម្បទា៖</strong> ' + esc(state.objAttitude) + '</li>' +
+            '</ul>' +
+          '</div>' +
+
+          '<!-- សម្ភារៈឧបទេស -->' +
+          '<div class="space-y-1 text-xs sm:text-sm"' + editAttr + '>' +
+            '<h3 class="khmer-moul text-xs sm:text-sm text-blue-950">II. សម្ភារៈឧបទេស</h3>' +
+            '<ul class="list-disc pl-5 space-y-1">' +
+              '<li><strong>សម្រាប់គ្រូ៖</strong> ' + esc(state.matTeacher) + '</li>' +
+              '<li><strong>សម្រាប់សិស្ស៖</strong> ' + esc(state.matStudent) + '</li>' +
+            '</ul>' +
+          '</div>' +
+
+          '<!-- ដំណើរការបង្រៀន (3-Column Mandatory Table) -->' +
+          '<div class="space-y-2">' +
+            '<h3 class="khmer-moul text-xs sm:text-sm text-blue-950">III. ដំណើរការបង្រៀន</h3>' +
+            '<div class="overflow-x-auto">' +
+              '<table class="lesson-table">' +
+                '<thead>' +
+                  '<tr>' +
+                    '<th style="width:28%;">សកម្មភាពគ្រូ</th>' +
+                    '<th style="width:46%;">ខ្លឹមសារមេរៀន</th>' +
+                    '<th style="width:26%;">សកម្មភាពសិស្ស</th>' +
+                  '</tr>' +
+                '</thead>' +
+                '<tbody>' +
+                  '<!-- ជំហានទី១ -->' +
+                  '<tr>' +
+                    '<td' + editAttr + '>- ត្រួតពិនិត្យអវត្តមានសិស្សដោយសួរប្រធាន ឬអនុប្រធានថ្នាក់៖ តើសិស្សអវត្តមានប៉ុន្មាននាក់? ស្រីប៉ុន្មាន?<br/>- ពិនិត្យអនាម័យថ្នាក់រៀន និងអនាម័យខ្លួនប្រាណសិស្សម្នាក់ៗ<br/>- ការពង្រឹងវិន័យ៖ ពេលកំពុងរៀនសូត្រកូនៗត្រូវស្ដាប់គ្រូ ដាក់ដៃលើតុ អង្គុយឱ្យត្រង់ខ្លួន</td>' +
+                    '<td' + editAttr + '><strong>ជំហានទី១ (៣នាទី)៖ រដ្ឋបាលថ្នាក់</strong><br/>- វត្តមានសិស្ស<br/>- ពិនិត្យអនាម័យ<br/>- ការពង្រឹងវិន័យសិស្ស</td>' +
+                    '<td' + editAttr + '>- ប្រធានថ្នាក់រាយការណ៍ចំនួនវត្តមាន និងអវត្តមាន<br/>- សិស្សដាក់ដៃលើតុ អង្គុយត្រង់ខ្លួន<br/>- បាទ/ចាស លោកគ្រូ</td>' +
+                  '</tr>' +
+
+                  '<!-- ជំហានទី២ -->' +
+                  '<tr>' +
+                    '<td' + editAttr + '>- ឱ្យសិស្សយកកិច្ចការផ្ទះដាក់លើតុគ្រូ<br/>- សួរសំណួររំឭកមេរៀនចាស់ និងឱ្យសិស្សឆ្លើយលើក្ដារឆ្នួន<br/>- គ្រូកែសម្រួល កោតសរសើរ និងចោទសួរសំណួរភ្ជាប់ទំនាក់ទំនងទៅមេរៀនថ្មី</td>' +
+                    '<td' + editAttr + '><strong>ជំហានទី២ (៧នាទី)៖</strong><br/>- កែកិច្ចការចាស់<br/>- រំឭកមេរៀនចាស់ និងទំនាក់ទំនងមេរៀនថ្មី៖<br/>' + formatMultiline(state.step2Review) + '</td>' +
+                    '<td' + editAttr + '>- សិស្សយកកិច្ចការផ្ទះដាក់លើតុគ្រូ<br/>- គណនា និងឆ្លើយសំណួររំឭកមេរៀនចាស់លើក្ដារឆ្នួន<br/>- ចូលរួមឆ្លើយសំណួរភ្ជាប់មេរៀនថ្មីដោយផុសផុល</td>' +
+                  '</tr>' +
+
+                  '<!-- ជំហានទី៣ -->' +
+                  '<tr>' +
+                    '<td' + editAttr + '>- សរសេរចំណងជើងដាក់លើក្ដារខៀន ហើយនាំសិស្សអានព្រមគ្នា<br/>- បង្ហាញសម្ភាររូបីជាក់ស្តែង (បន្ទាត់ម៉ែត្រ បាច់បំពង់បឺត បន្ទះតម្លៃខ្ទង់ ដ្យាក្រាមរបារ ឬរូបភាព)<br/>- ដាក់សំណួរគន្លឹះជំរុញការគិត និងឱ្យសិស្សចាប់ដៃគូពិភាក្សា<br/>- ដើរពិនិត្យ សង្កេត និងសម្របសម្រួលការពិភាក្សារបស់ដៃគូសិស្ស<br/>- ឱ្យសិស្សស្ម័គ្រចិត្តឡើងបង្ហាញ និងកត់ត្រាលទ្ធផលលើក្ដារខៀន<br/>- ឱ្យសិស្សចូលក្រុមពិភាក្សា លេងល្បែងសិក្សាគណិតវិទ្យា និងដោះស្រាយលំហាត់<br/>- ឱ្យតំណាងក្រុមរាយការណ៍ និងគ្រូនាំសិស្សសំយោគខ្លឹមសាររួម<br/>- <strong>ពន្យល់ណែនាំ និងកត់សម្គាល់បង្ការកំហុស និងគំនិតភាន់ច្រឡំរបស់សិស្ស</strong></td>' +
+                    '<td' + editAttr + '>' +
+                      '<strong>ជំហានទី៣ (២០នាទី)៖ មេរៀនថ្មី</strong><br/>' +
+                      '<span class="font-bold text-blue-950">' + esc(state.mainLesson) + '</span><br/>' +
+                      '<span class="font-semibold text-slate-800">' + esc(state.subTopic) + '</span><br/>' +
+                      '<span class="text-xs font-semibold text-indigo-900">(' + esc(state.activityTitle) + ')</span><br/><br/>' +
+                      '<strong>១. ការងារដៃគូ និងការប្រើប្រាស់សម្ភាររូបី៖</strong><br/>' + formatMultiline(state.step3PairWork) + '<br/><br/>' +
+                      '<strong>២. ខ្លឹមសារគន្លឹះ / វិធានគណិតវិទ្យា / តារាងសំយោគ៖</strong><br/>' + formatMultiline(state.step3KeyRule) + '<br/><br/>' +
+                      '<strong>ការងារក្រុម និងល្បែងសិក្សាគណិតវិទ្យា៖</strong><br/>' + formatMultiline(state.step3GroupGame) + '<br/><br/>' +
+                      '<div class="p-2.5 rounded bg-rose-50 border border-rose-300 text-rose-950">' +
+                        '<strong>៣. កំហុស និងគំនិតភាន់ច្រឡំ (ដកស្រង់ពីសៀវភៅស្ដង់ដារគណិតវិទ្យា ស្របតាម' + esc(state.standardLevel) + ')៖</strong><br/>' +
+                        formatMultiline(state.misconceptions) +
+                      '</div>' +
+                    '</td>' +
+                    '<td' + editAttr + '>- អានចំណងជើងមេរៀនព្រមគ្នា<br/>- សង្កេតមើលសម្ភាររូបី និងឆ្លើយសំណួររបស់គ្រូ<br/>- ចាប់ដៃគូពិភាក្សា និងអនុវត្តជាមួយសម្ភាររូបី<br/>- សិស្សស្ម័គ្រចិត្តឡើងបង្ហាញលើក្ដារខៀន<br/>- ពិភាក្សាជាក្រុម ចូលរួមលេងល្បែងសិក្សា និងរាយការណ៍លទ្ធផល<br/>- ចូលរួមសំយោគ និងកត់ត្រាខ្លឹមសារគន្លឹះចូលសៀវភៅ<br/>- <strong>ស្ដាប់ការណែនាំ ចងចាំ និងចៀសវាងកំហុស និងគំនិតភាន់ច្រឡំទាំងនោះ</strong></td>' +
+                  '</tr>' +
+
+                  '<!-- ជំហានទី៤ -->' +
+                  '<tr>' +
+                    '<td' + editAttr + '>- គ្រូដាក់សំណួរ ឬលំហាត់ពង្រឹងចំណេះដឹងឱ្យសិស្សអនុវត្តលើក្ដារឆ្នួន និងប្រើបច្ចេកទេសវាយតម្លៃក្នុងដំណើរការសិក្សា (ប្រើបណ្ណសញ្ញាចរាចរពណ៌បៃតង និងពណ៌ក្រហម)<br/>- ពិនិត្យ ផ្ដល់ព័ត៌មានត្រឡប់ភ្លាមៗ និងជួយសិស្សដែលជួបការលំបាក</td>' +
+                    '<td' + editAttr + '><strong>ជំហានទី៤ (៧នាទី)៖ ពង្រឹងចំណេះដឹង</strong><br/>- ការអនុវត្តលើក្ដារឆ្នួន / សំណួរពង្រឹង៖<br/>' + formatMultiline(state.step4Practice) + '<br/>- បច្ចេកទេសវាយតម្លៃ (បណ្ណពណ៌បៃតង = យល់ស្រប/ត្រូវ, បណ្ណពណ៌ក្រហម = មិនយល់ស្រប/ខុស)</td>' +
+                    '<td' + editAttr + '>- សិស្សអនុវត្តគណនា និងឆ្លើយលើក្ដារឆ្នួនរៀងៗខ្លួន<br/>- លើកបង្ហាញក្ដារឆ្នួន និងបណ្ណសញ្ញាចរាចរពណ៌ព្រមគ្នា<br/>- ផ្ទៀងផ្ទាត់ និងកែតម្រូវចម្លើយតាមការណែនាំរបស់គ្រូ</td>' +
+                  '</tr>' +
+
+                  '<!-- ជំហានទី៥ -->' +
+                  '<tr>' +
+                    '<td' + editAttr + '>- ដាក់កិច្ចការផ្ទះជាក់ស្តែងឱ្យសិស្សធ្វើនៅផ្ទះ (ស្រង់ពីសៀវភៅសិស្ស)<br/>- បណ្ដាំផ្ញើសិស្សឱ្យមើលមេរៀនបន្ថែម ថែរក្សាសុខភាព អនាម័យ និងការអប់រំចរិយាសម្បទា (ពេលទៅផ្ទះវិញសូមដើរប្រកាន់ស្ដាំ ដើម្បីចៀសវាងគ្រោះថ្នាក់ចរាចរណ៍)</td>' +
+                    '<td' + editAttr + '><strong>ជំហានទី៥ (៣នាទី)៖ កិច្ចការផ្ទះ និងបណ្ដាំផ្ញើ</strong><br/>- កិច្ចការផ្ទះ៖ ' + formatMultiline(state.step5Homework) + '<br/>- បណ្ដាំផ្ញើ និងការអប់រំចរិយាសម្បទា/សុវត្ថិភាពតាមដងផ្លូវ</td>' +
+                    '<td' + editAttr + '>- កត់ត្រាកិច្ចការផ្ទះចូលក្នុងសៀវភៅសរសេរ<br/>- ស្ដាប់បណ្ដាំផ្ញើ និងការអប់រំដោយយកចិត្តទុកដាក់<br/>- រៀបចំសម្ភារទុកដាក់ឱ្យមានរបៀបរៀបរយ</td>' +
+                  '</tr>' +
+                '</tbody>' +
+              '</table>' +
+            '</div>' +
+          '</div>' +
+
+          '<!-- Official Footer & Signatures -->' +
+          '<div class="pt-4 text-xs sm:text-sm space-y-3"' + editAttr + '>' +
+            '<div class="text-right space-y-0.5">' +
+              '<p>' + esc(state.lunarDate) + '</p>' +
+              '<p>' + esc(state.solarDate) + '</p>' +
+            '</div>' +
+            '<div class="grid grid-cols-2 text-center pt-1">' +
+              '<div class="space-y-12">' +
+                '<div>' +
+                  '<p class="font-bold">បានឃើញ និងឯកភាព</p>' +
+                  '<p class="khmer-moul text-xs">នាយកសាលា</p>' +
+                '</div>' +
+                '<p class="text-slate-400">..................................................</p>' +
+              '</div>' +
+              '<div class="space-y-12">' +
+                '<div>' +
+                  '<p class="font-bold">គ្រូបន្ទុកថ្នាក់ទី' + esc(state.grade) + '</p>' +
+                '</div>' +
+                '<p class="font-bold text-slate-900">' + esc(state.teacher) + '</p>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>';
+    }
+
+    // =========================================================================
+    // 6. 12-SLIDE PRESENTATION GENERATOR & MANIPULATIVES RENDERER
+    // =========================================================================
+    function build12SlidesData(state) {
+      return [
+        {
+          num: 1,
+          tag: "Slide 1 • ចំណងជើងមេរៀន និងព័ត៌មានសាលា",
+          title: state.mainLesson,
+          subtitle: state.subTopic,
+          body: "សាលាបឋមសិក្សា៖ " + state.school + "\nបង្រៀនដោយ៖ " + state.teacher + " | ថ្នាក់ទី" + state.grade + "\nកាលបរិច្ឆេទ៖ " + state.solarDate,
+          badge: state.standardLevel
+        },
+        {
+          num: 2,
+          tag: "Slide 2 • វត្ថុបំណងមេរៀន",
+          title: "វត្ថុបំណងនៃមេរៀន (វិជ្ជាសម្បទា • បំណិនសម្បទា • ចរិយាសម្បទា)",
+          subtitle: state.expectedOutcome,
+          body: "• វិជ្ជាសម្បទា៖ " + state.objKnowledge + "\n• បំណិនសម្បទា៖ " + state.objSkill + "\n• ចរិយាសម្បទា៖ " + state.objAttitude,
+          badge: "វត្ថុបំណងទាំង ៣ ផ្នែក"
+        },
+        {
+          num: 3,
+          tag: "Slide 3 • រំឭកមេរៀនចាស់ និងភ្ជាប់មេរៀនថ្មី",
+          title: "ជំហានទី២៖ រំឭកមេរៀនចាស់ និងទំនាក់ទំនងមេរៀនថ្មី",
+          subtitle: "សកម្មភាពលើក្ដារឆ្នួន និងសំណួរបំផុសគំនិត",
+          body: state.step2Review,
+          badge: "រយៈពេល ៧ នាទី"
+        },
+        {
+          num: 4,
+          tag: "Slide 4 • ខ្លឹមសារគន្លឹះទី១ (វិធានស្ដង់ដារ)",
+          title: "ខ្លឹមសារគន្លឹះទី១៖ វិធាន និងជំហានដោះស្រាយតាមសៀវភៅស្ដង់ដារ",
+          subtitle: state.activityTitle,
+          body: state.step3KeyRule,
+          badge: "សៀវភៅស្ដង់ដារគណិតវិទ្យា"
+        },
+        {
+          num: 5,
+          tag: "Slide 5 • ខ្លឹមសារគន្លឹះទី២ (សម្ភាររូបី)",
+          title: "ខ្លឹមសារគន្លឹះទី២៖ ការប្រើប្រាស់សម្ភាររូបីក្នុងការងារដៃគូ",
+          subtitle: "សម្ភារៈ៖ " + state.matTeacher,
+          body: state.step3PairWork,
+          badge: "ការងារដៃគូ (សង្កេត & អនុវត្ត)"
+        },
+        {
+          num: 6,
+          tag: "Slide 6 • ខ្លឹមសារគន្លឹះទី៣ (ដ្យាក្រាមរបារ Bar Model)",
+          title: "ខ្លឹមសារគន្លឹះទី៣៖ ដ្យាក្រាមរបារ (Bar Model) និងតារាងបំបែកខ្នាត/ខ្ទង់",
+          subtitle: "គំនូសបំព្រួញតំណាងទំនាក់ទំនងចំនួន (" + state.barA + " និង " + state.barB + " → សរុប " + (state.barA + state.barB) + ")",
+          body: "ប្រើដ្យាក្រាមរបារ និងតារាងតម្លៃខ្ទង់/ខ្នាត (ចំនួនគំរូ៖ " + state.placeNum + ") ដើម្បីជួយសិស្សមើលឃើញទំនាក់ទំនងរវាងផ្នែក និងចំនួនសរុបយ៉ាងច្បាស់លាស់។",
+          badge: "Bar Model & Place Value"
+        },
+        {
+          num: 7,
+          tag: "Slide 7 • លំហាត់គំរូទី១ (សៀវភៅណែនាំគ្រូ)",
+          title: "លំហាត់គំរូទី១៖ ការបង្ហាញជំហានដោះស្រាយតាមសៀវភៅណែនាំគ្រូ",
+          subtitle: state.subTopic,
+          body: "គ្រូនាំសិស្សអនុវត្តជាជំហានៗលើក្ដារខៀនដោយភ្ជាប់ពីសម្ភាររូបី ទៅកាន់និមិត្តសញ្ញាគណិតវិទ្យា៖\n" + state.step3PairWork,
+          badge: "សៀវភៅណែនាំគ្រូ"
+        },
+        {
+          num: 8,
+          tag: "Slide 8 • លំហាត់គំរូទី២ & កំហុសភាន់ច្រឡំ",
+          title: "លំហាត់គំរូទី២ និងការបង្ការកំហុស និងគំនិតភាន់ច្រឡំ (MCAS)",
+          subtitle: "៣. កំហុស និងគំនិតភាន់ច្រឡំ (" + state.standardLevel + ")",
+          body: state.misconceptions,
+          badge: "កំហិតដាច់ខាត ជំហានទី៣"
+        },
+        {
+          num: 9,
+          tag: "Slide 9 • ការអនុវត្តលើក្ដារឆ្នួន (Formative Assessment)",
+          title: "ជំហានទី៤៖ ការអនុវត្តលើក្ដារឆ្នួន និងបណ្ណសញ្ញាចរាចរ",
+          subtitle: "បណ្ណពណ៌បៃតង = ត្រូវ/យល់ស្រប | បណ្ណពណ៌ក្រហម = ខុស/មិនយល់ស្រប",
+          body: state.step4Practice,
+          badge: "វាយតម្លៃក្នុងដំណើរការសិក្សា"
+        },
+        {
+          num: 10,
+          tag: "Slide 10 • តម្លៃអប់រំ និងការអនុវត្តក្នុងជីវភាព",
+          title: "តម្លៃអប់រំ និងការអនុវត្តជាក់ស្ដែងក្នុងភូមិថ្លុកបង្កោ ខេត្តពោធិ៍សាត់",
+          subtitle: "ភ្ជាប់គណិតវិទ្យាទៅនឹងជីវភាពប្រចាំថ្ងៃរបស់សិស្ស",
+          body: state.objAttitude + "\n• សិស្សចេះយកចំណេះដឹងគណិតវិទ្យាទៅប្រើក្នុងការរាប់ វាស់វែង ប្តូរខ្នាត និងចែករំលែកវត្ថុនៅផ្ទះ និងសាលាបឋមសិក្សាថ្លុកបង្កោ។",
+          badge: "បរិបទខេត្តពោធិ៍សាត់"
+        },
+        {
+          num: 11,
+          tag: "Slide 11 • សកម្មភាពក្រុម និងល្បែងសិក្សា",
+          title: "សកម្មភាពក្រុម និងល្បែងសិក្សាគណិតវិទ្យា",
+          subtitle: "សៀវភៅណែនាំគ្រូ និងសៀវភៅជំនួយគណិតវិទ្យា",
+          body: state.step3GroupGame,
+          badge: "ល្បែងសិក្សាគណិតវិទ្យា"
+        },
+        {
+          num: 12,
+          tag: "Slide 12 • សង្ខេបមេរៀន និងកិច្ចការផ្ទះ",
+          title: "ជំហានទី៥៖ សង្ខេបមេរៀនគន្លឹះ កិច្ចការផ្ទះ និងបណ្ដាំផ្ញើ",
+          subtitle: state.mainLesson,
+          body: "• កិច្ចការផ្ទះ៖ " + state.step5Homework + "\n• បណ្ដាំផ្ញើ៖ ពេលត្រឡប់ទៅផ្ទះវិញ សូមកូនៗដើរប្រកាន់ស្ដាំ ថែរក្សាអនាម័យ និងមើលមេរៀនបន្ថែម។",
+          badge: "បញ្ចប់មេរៀន (" + state.duration + ")"
+        }
+      ];
+    }
+
+    function renderSlidesAndManipulatives(state) {
+      // 1. Render Bar Model SVG
+      var a = Math.max(1, state.barA);
+      var b = Math.max(1, state.barB);
+      var total = a + b;
+      var pctA = Math.round((a / total) * 100);
+      pctA = Math.max(18, Math.min(82, pctA));
+      var pctB = 100 - pctA;
+
+      var eqBadge = document.getElementById("barModelEquation");
+      if (eqBadge) eqBadge.textContent = a + " + " + b + " = " + total + "  |  " + total + " - " + a + " = " + b;
+
+      var barContainer = document.getElementById("barModelSvgContainer");
+      if (barContainer) {
+        barContainer.innerHTML =
+          '<div class="space-y-2">' +
+            '<div class="text-center text-xs font-bold text-slate-700">ចំនួនសរុបទាំងអស់ = ' + total + '</div>' +
+            '<div class="w-full h-9 rounded-lg overflow-hidden flex border-2 border-slate-800 font-bold text-xs text-white shadow-inner">' +
+              '<div style="width:' + pctA + '%" class="bg-blue-600 flex items-center justify-center">ផ្នែកទី១៖ ' + a + '</div>' +
+              '<div style="width:' + pctB + '%" class="bg-amber-500 text-slate-950 flex items-center justify-center border-l-2 border-slate-800">ផ្នែកទី២៖ ' + b + '</div>' +
+            '</div>' +
+            '<div class="flex justify-between text-[11px] text-slate-500 font-medium px-1">' +
+              '<span>០</span><span>ផ្នែកទី១ (' + a + ') + ផ្នែកទី២ (' + b + ')</span><span>' + total + '</span>' +
+            '</div>' +
+          '</div>';
+      }
+
+      // 2. Render Place Value Blocks (Hundreds, Tens, Ones)
+      var num = Math.max(1, Math.min(999, state.placeNum));
+      var hundreds = Math.floor(num / 100);
+      var tens = Math.floor((num % 100) / 10);
+      var ones = num % 10;
+
+      var pvBadge = document.getElementById("placeValueBadge");
+      if (pvBadge) {
+        pvBadge.textContent = hundreds + " រយ (ម) + " + tens + " ដប់ (ដម) + " + ones + " រាយ (សម) = " + num;
+      }
+
+      var pvContainer = document.getElementById("placeValueVisualContainer");
+      if (pvContainer) {
+        var hBoxes = "";
+        for (var i = 0; i < hundreds; i++) {
+          hBoxes += '<span class="inline-block w-6 h-6 m-0.5 rounded bg-indigo-600 border border-indigo-900 text-[10px] text-white leading-6 font-bold">100</span>';
+        }
+        if (!hBoxes) hBoxes = '<span class="text-xs text-slate-400">០ បន្ទះរយ</span>';
+
+        var tBoxes = "";
+        for (var j = 0; j < tens; j++) {
+          tBoxes += '<span class="inline-block w-3 h-7 m-0.5 rounded bg-emerald-600 border border-emerald-900 text-[9px] text-white leading-7 font-bold">10</span>';
+        }
+        if (!tBoxes) tBoxes = '<span class="text-xs text-slate-400">០ បាច់ដប់</span>';
+
+        var oBoxes = "";
+        for (var k = 0; k < ones; k++) {
+          oBoxes += '<span class="inline-block w-3.5 h-3.5 m-0.5 rounded-full bg-amber-500 border border-amber-800"></span>';
+        }
+        if (!oBoxes) oBoxes = '<span class="text-xs text-slate-400">០ គ្រាប់រាយ</span>';
+
+        pvContainer.innerHTML =
+          '<div class="p-2 rounded bg-indigo-50 border border-indigo-200">' +
+            '<div class="text-xs font-bold text-indigo-950 border-b border-indigo-200 pb-1 mb-1.5">ខ្ទង់រយ / ម៉ែត្រ (' + hundreds + ')</div>' +
+            '<div class="min-h-[44px] flex flex-wrap items-center justify-center">' + hBoxes + '</div>' +
+          '</div>' +
+          '<div class="p-2 rounded bg-emerald-50 border border-emerald-200">' +
+            '<div class="text-xs font-bold text-emerald-950 border-b border-emerald-200 pb-1 mb-1.5">ខ្ទង់ដប់ / ដម (' + tens + ')</div>' +
+            '<div class="min-h-[44px] flex flex-wrap items-center justify-center">' + tBoxes + '</div>' +
+          '</div>' +
+          '<div class="p-2 rounded bg-amber-50 border border-amber-200">' +
+            '<div class="text-xs font-bold text-amber-950 border-b border-amber-200 pb-1 mb-1.5">ខ្ទង់រាយ / សម (' + ones + ')</div>' +
+            '<div class="min-h-[44px] flex flex-wrap items-center justify-center">' + oBoxes + '</div>' +
+          '</div>';
+      }
+
+      // 3. Render 12 Slides
+      var slides = build12SlidesData(state);
+      if (currentSlideIndex < 0 || currentSlideIndex >= slides.length) currentSlideIndex = 0;
+      var active = slides[currentSlideIndex];
+
+      var counterEl = document.getElementById("slideCounterLabel");
+      if (counterEl) counterEl.textContent = "ស្លាយទី " + active.num + " / 12";
+
+      var stageEl = document.getElementById("activeSlideStage");
+      if (stageEl) {
+        stageEl.innerHTML =
+          '<div class="space-y-3">' +
+            '<div class="flex flex-wrap items-center justify-between gap-2 border-b border-white/15 pb-3">' +
+              '<span class="px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-bold">' + esc(active.tag) + '</span>' +
+              '<span class="px-3 py-1 rounded-full bg-white/10 text-blue-200 text-xs font-semibold">' + esc(active.badge) + '</span>' +
+            '</div>' +
+            '<h3 class="text-lg sm:text-2xl font-bold text-white leading-snug pt-1">' + esc(active.title) + '</h3>' +
+            '<p class="text-xs sm:text-sm text-amber-300 font-semibold">' + esc(active.subtitle) + '</p>' +
+            '<div class="p-4 rounded-xl bg-white/10 border border-white/15 text-xs sm:text-sm text-blue-50 leading-relaxed">' +
+              formatMultiline(active.body) +
+            '</div>' +
+          '</div>' +
+          '<div class="pt-4 mt-4 border-t border-white/15 flex items-center justify-between text-[11px] text-blue-200">' +
+            '<span>សាលាបឋមសិក្សាថ្លុកបង្កោ ខេត្តពោធិ៍សាត់ • ' + esc(state.teacher) + '</span>' +
+            '<span>កម្មវិធីកញ្ចប់គណិតវិទ្យា ថ្នាក់ទី' + esc(state.grade) + ' (ស្លាយទី ' + active.num + '/12)</span>' +
+          '</div>';
+      }
+
+      var gridEl = document.getElementById("slidesGridContainer");
+      if (gridEl) {
+        var cardsHtml = "";
+        for (var s = 0; s < slides.length; s++) {
+          var item = slides[s];
+          var isSelected = s === currentSlideIndex;
+          cardsHtml +=
+            '<button type="button" data-slide-idx="' + s + '" class="slide-card-btn text-left p-3.5 rounded-xl border transition flex flex-col justify-between ' +
+            (isSelected ? 'bg-blue-50 border-blue-700 ring-2 ring-blue-600' : 'bg-slate-50 hover:bg-slate-100 border-slate-200') + '">' +
+              '<div>' +
+                '<div class="flex items-center justify-between gap-2 mb-1.5">' +
+                  '<span class="px-2 py-0.5 rounded bg-blue-900 text-white text-[11px] font-bold">ស្លាយទី ' + item.num + '</span>' +
+                  '<span class="text-[11px] font-semibold text-slate-500">' + esc(item.badge) + '</span>' +
+                '</div>' +
+                '<h4 class="text-xs sm:text-sm font-bold text-slate-900 line-clamp-2">' + esc(item.title) + '</h4>' +
+                '<p class="text-xs text-slate-600 mt-1 line-clamp-3">' + esc(item.body) + '</p>' +
+              '</div>' +
+            '</button>';
+        }
+        gridEl.innerHTML = cardsHtml;
+        var cardBtns = gridEl.querySelectorAll(".slide-card-btn");
+        for (var bIdx = 0; bIdx < cardBtns.length; bIdx++) {
+          cardBtns[bIdx].addEventListener("click", function () {
+            var idx = parseInt(this.getAttribute("data-slide-idx"), 10);
+            if (!isNaN(idx)) {
+              currentSlideIndex = idx;
+              renderSlidesAndManipulatives(getFormState());
+            }
+          });
+        }
+      }
+    }
+
+    // =========================================================================
+    // 7. STANDARD COMPLIANCE AUDITOR & SAVED PLANS LIST
+    // =========================================================================
+    function renderStandardAuditAndSaved(state) {
+      var checks = [
+        {
+          label: "១. កំណត់ទីតាំងសាលាបឋមសិក្សាថ្លុកបង្កោ ស្រុកភ្នំក្រវាញ ខេត្តពោធិ៍សាត់",
+          passed: state.school.indexOf("ពោធិ៍សាត់") !== -1
+        },
+        {
+          label: "២. ចំណងជើង «មេរៀនទី...» ស្រង់ចេញពីមាតិកាសៀវភៅសិស្ស (សស. ទំព័រ...)",
+          passed: state.mainLesson.length > 5
+        },
+        {
+          label: "៣. ខ្លឹមសាររង និងសកម្មភាពទី... ស្រង់តាមសៀវភៅណែនាំគ្រូ (ស.គ្រូ ទំព័រ...)",
+          passed: state.subTopic.length > 5 && state.activityTitle.length > 5
+        },
+        {
+          label: "៤. វត្ថុបំណងទាំង ៣ ផ្នែក (វិជ្ជាសម្បទា បំណិនសម្បទា ចរិយាសម្បទា)",
+          passed: state.objKnowledge.length > 5 && state.objSkill.length > 5 && state.objAttitude.length > 5
+        },
+        {
+          label: "៥. ការប្រើប្រាស់សម្ភាររូបី និងការងារដៃគូ/ក្រុមតាមសៀវភៅណែនាំគ្រូ",
+          passed: state.matTeacher.length > 5 && state.step3PairWork.length > 5
+        },
+        {
+          label: "៦. ល្បែងសិក្សាគណិតវិទ្យា (ជំហានទី៣)",
+          passed: state.step3GroupGame.length > 5
+        },
+        {
+          label: "៧. ចំណុច «៣. កំហុស និងគំនិតភាន់ច្រឡំ» នៅចុងជំហានទី៣ តាមសៀវភៅស្ដង់ដារ MCAS",
+          passed: state.misconceptions.length > 10
+        },
+        {
+          label: "៨. បច្ចេកទេសវាយតម្លៃលើក្ដារឆ្នួន និងបណ្ណសញ្ញាចរាចរ (ជំហានទី៤) + កាលបរិច្ឆេទខាងក្រោម",
+          passed: state.step4Practice.length > 5 && state.solarDate.length > 5
+        }
+      ];
+
+      var passCount = 0;
+      var auditHtml = "";
+      for (var i = 0; i < checks.length; i++) {
+        if (checks[i].passed) passCount++;
+        auditHtml +=
+          '<li class="flex items-start gap-2.5 p-2.5 rounded-xl border ' +
+          (checks[i].passed ? 'bg-emerald-50/70 border-emerald-200 text-emerald-950' : 'bg-amber-50 border-amber-300 text-amber-950') + '">' +
+            '<span class="font-bold text-sm">' + (checks[i].passed ? '✅' : '⚠️') + '</span>' +
+            '<span class="font-medium">' + esc(checks[i].label) + '</span>' +
+          '</li>';
+      }
+
+      var auditList = document.getElementById("auditChecklistContainer");
+      if (auditList) auditList.innerHTML = auditHtml;
+
+      var badge = document.getElementById("liveAuditBadge");
+      if (badge) {
+        badge.textContent = "គោរពតាមស្ដង់ដារ " + passCount + "/" + checks.length + " ចំណុច";
+      }
+
+      var savedContainer = document.getElementById("savedPlansListContainer");
+      if (!savedContainer) return;
+
+      if (savedPlans.length === 0) {
+        savedContainer.innerHTML = '<div class="p-6 text-center text-sm text-slate-500 bg-slate-50 rounded-xl border border-slate-200">មិនទាន់មានកិច្ចតែងការដែលបានរក្សាទុកនៅឡើយទេ។</div>';
+        return;
+      }
+
+      var listHtml = "";
+      for (var p = 0; p < savedPlans.length; p++) {
+        var sp = savedPlans[p];
+        listHtml +=
+          '<div class="p-4 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white transition flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">' +
+            '<div class="space-y-1">' +
+              '<div class="flex flex-wrap items-center gap-2">' +
+                '<span class="px-2.5 py-0.5 rounded bg-blue-900 text-white text-xs font-bold">ថ្នាក់ទី' + esc(sp.grade) + '</span>' +
+                '<span class="px-2 py-0.5 rounded bg-amber-100 text-amber-900 text-xs font-semibold">' + esc(sp.standardLevel) + '</span>' +
+                (sp.savedAt ? '<span class="text-xs text-slate-500">🕒 ' + esc(sp.savedAt) + '</span>' : '') +
+              '</div>' +
+              '<h3 class="text-sm font-bold text-slate-900">' + esc(sp.mainLesson) + '</h3>' +
+              '<p class="text-xs text-slate-600">' + esc(sp.subTopic) + '</p>' +
+            '</div>' +
+            '<div class="flex items-center gap-2 self-end sm:self-center">' +
+              '<button type="button" data-load-idx="' + p + '" class="btn-load-saved px-3 py-1.5 rounded-lg bg-blue-900 hover:bg-blue-800 text-white text-xs font-bold">បើកប្រើ</button>' +
+              '<button type="button" data-del-idx="' + p + '" class="btn-del-saved px-3 py-1.5 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-800 text-xs font-bold">លុប</button>' +
+            '</div>' +
+          '</div>';
+      }
+      savedContainer.innerHTML = listHtml;
+
+      var loadBtns = savedContainer.querySelectorAll(".btn-load-saved");
+      for (var l = 0; l < loadBtns.length; l++) {
+        loadBtns[l].addEventListener("click", function () {
+          var idx = parseInt(this.getAttribute("data-load-idx"), 10);
+          if (!isNaN(idx) && savedPlans[idx]) {
+            applyPresetToForm(savedPlans[idx]);
+            switchTab("document");
+            showToast("បានផ្ទុកកិច្ចតែងការ៖ " + savedPlans[idx].mainLesson, "📂");
+          }
+        });
+      }
+
+      var delBtns = savedContainer.querySelectorAll(".btn-del-saved");
+      for (var d = 0; d < delBtns.length; d++) {
+        delBtns[d].addEventListener("click", function () {
+          var idx = parseInt(this.getAttribute("data-del-idx"), 10);
+          if (!isNaN(idx) && savedPlans[idx]) {
+            savedPlans.splice(idx, 1);
+            persistSavedPlans();
+            renderStandardAuditAndSaved(getFormState());
+            showToast("បានលុបកិច្ចតែងការចេញពីបណ្ណាល័យ។", "🗑️");
+          }
+        });
+      }
+    }
+
+    // =========================================================================
+    // 8. PRESET CARDS RENDERER & MASTER RENDER
+    // =========================================================================
+    function renderPresetCards() {
+      var container = document.getElementById("presetCardsContainer");
+      if (!container) return;
+      var html = "";
+      for (var i = 0; i < LESSON_PRESETS.length; i++) {
+        var item = LESSON_PRESETS[i];
+        if (currentGradeFilter !== "ALL" && item.grade !== currentGradeFilter) continue;
+        html +=
+          '<button type="button" data-preset-idx="' + i + '" class="preset-card-btn text-left p-3.5 rounded-xl border border-slate-200 hover:border-blue-600 bg-slate-50/70 hover:bg-blue-50/50 transition flex flex-col justify-between gap-2 group">' +
+            '<div>' +
+              '<div class="flex items-center justify-between gap-2 mb-1">' +
+                '<span class="px-2 py-0.5 rounded bg-blue-900 text-white text-[11px] font-bold">ថ្នាក់ទី' + esc(item.grade) + '</span>' +
+                '<span class="text-[11px] font-semibold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">' + esc(item.standardLevel) + '</span>' +
+              '</div>' +
+              '<h4 class="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-blue-950">' + esc(item.mainLesson) + '</h4>' +
+              '<p class="text-xs text-slate-600 mt-0.5 line-clamp-2">' + esc(item.subTopic) + '</p>' +
+            '</div>' +
+            '<div class="text-[11px] font-bold text-blue-800 flex items-center justify-between pt-1 border-t border-slate-200/70">' +
+              '<span>ចុចដើម្បីបង្កើតកិច្ចតែងការនេះ</span>' +
+              '<span>→</span>' +
+            '</div>' +
+          '</button>';
+      }
+      container.innerHTML = html;
+
+      var btns = container.querySelectorAll(".preset-card-btn");
+      for (var b = 0; b < btns.length; b++) {
+        btns[b].addEventListener("click", function () {
+          var idx = parseInt(this.getAttribute("data-preset-idx"), 10);
+          if (!isNaN(idx) && LESSON_PRESETS[idx]) {
+            applyPresetToForm(LESSON_PRESETS[idx]);
+            showToast("បានជ្រើសរើស៖ " + LESSON_PRESETS[idx].mainLesson, "📘");
+          }
+        });
+      }
+    }
+
+    function renderAllViews() {
+      var state = getFormState();
+      var isEditable = document.getElementById("toggleInlineEdit").checked;
+
+      var studioPreview = document.getElementById("studioPreviewContainer");
+      if (studioPreview) {
+        studioPreview.innerHTML = buildOfficialLessonPlanHtml(state, false);
+      }
+
+      var fullSheet = document.getElementById("fullLessonPlanSheet");
+      if (fullSheet) {
+        fullSheet.innerHTML = buildOfficialLessonPlanHtml(state, isEditable);
+      }
+
+      renderSlidesAndManipulatives(state);
+      renderStandardAuditAndSaved(state);
+    }
+
+    // =========================================================================
+    // 9. EXPORT TO WORD (.DOC), COPY & SAVE ACTIONS
+    // =========================================================================
+    function exportToWordDoc() {
+      var state = getFormState();
+      var sheetEl = document.getElementById("fullLessonPlanSheet");
+      var bodyHtml = sheetEl ? sheetEl.innerHTML : buildOfficialLessonPlanHtml(state, false);
+
+      var wordDocContent =
+        '<html xmlns:o="urn:schemas-microsoft-com:office:office" ' +
+        'xmlns:w="urn:schemas-microsoft-com:office:word" ' +
+        'xmlns="http://www.w3.org/TR/REC-html40">' +
+        '<head><meta charset="utf-8"><title>' + esc(state.mainLesson) + '</title>' +
+        '<style>' +
+        'body { font-family: "Battambang", "Khmer OS Siemreap", sans-serif; font-size: 11pt; line-height: 1.5; }' +
+        '.khmer-moul { font-family: "Moul", "Khmer OS Muol Light", serif; }' +
+        'table { width: 100%; border-collapse: collapse; margin-top: 8pt; }' +
+        'th, td { border: 1pt solid #000000; padding: 6pt; vertical-align: top; font-size: 10.5pt; }' +
+        'th { background-color: #eff6ff; font-weight: bold; text-align: center; }' +
+        '</style></head><body>' +
+        bodyHtml +
+        '</body></html>';
+
+      var blob = new Blob(['\ufeff', wordDocContent], { type: 'application/msword;charset=utf-8' });
+      var url = URL.createObjectURL(blob);
+      var link = document.createElement("a");
+      link.href = url;
+      link.download = "កិច្ចតែងការគណិតវិទ្យា_ថ្នាក់ទី" + state.grade + ".doc";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+      showToast("បានទាញយកឯកសារ Word (.doc) ដោយជោគជ័យ!", "📥");
+    }
+
+    function copyLessonPlanToClipboard() {
+      var sheetEl = document.getElementById("fullLessonPlanSheet");
+      if (!sheetEl) return;
+      var textToCopy = sheetEl.innerText || sheetEl.textContent || "";
+
+      var copied = false;
+      try {
+        var tempArea = document.createElement("textarea");
+        tempArea.value = textToCopy;
+        tempArea.style.position = "fixed";
+        tempArea.style.left = "-9999px";
+        document.body.appendChild(tempArea);
+        tempArea.select();
+        copied = document.execCommand("copy");
+        document.body.removeChild(tempArea);
+      } catch (e) {
+        copied = false;
+      }
+
+      if (!copied && navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textToCopy).catch(function () {});
+      }
+      showToast("បានចម្លងខ្លឹមសារកិច្ចតែងការរួចរាល់! អាចបិទភ្ជាប់ក្នុង Google Docs បានភ្លាមៗ។", "📋");
+    }
+
+    function saveCurrentPlanToLibrary() {
+      var state = getFormState();
+      var now = new Date();
+      var pad = function (n) { return n < 10 ? "0" + n : String(n); };
+      state.savedAt = pad(now.getDate()) + "/" + pad(now.getMonth() + 1) + "/" + now.getFullYear() + " • " + pad(now.getHours()) + ":" + pad(now.getMinutes());
+      savedPlans.unshift(state);
+      persistSavedPlans();
+      renderStandardAuditAndSaved(state);
+      showToast("បានរក្សាទុកកិច្ចតែងការក្នុងបណ្ណាល័យផ្ទាល់ខ្លួន!", "💾");
+    }
+
+    // =========================================================================
+    // 10. TAB NAVIGATION & EVENT LISTENERS
+    // =========================================================================
+    function switchTab(targetTab) {
+      var panels = document.querySelectorAll(".tab-panel");
+      for (var i = 0; i < panels.length; i++) {
+        panels[i].classList.add("hidden");
+      }
+      var targetEl = document.getElementById("tab-" + targetTab);
+      if (targetEl) targetEl.classList.remove("hidden");
+
+      var btns = document.querySelectorAll(".nav-tab-btn");
+      for (var j = 0; j < btns.length; j++) {
+        var t = btns[j].getAttribute("data-tab");
+        if (t === targetTab) {
+          btns[j].className = "nav-tab-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition bg-amber-400 text-slate-950 shadow-sm";
+        } else {
+          btns[j].className = "nav-tab-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-semibold whitespace-nowrap transition text-blue-100 hover:bg-blue-800/60";
+        }
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", function () {
+      loadSavedPlansFromStorage();
+      loadApiConfigFromStorage();
+
+      // Open / Close API Key Modal
+      var apiModal = document.getElementById("apiSettingsModal");
+      function openApiModal() {
+        syncApiConfigToUi();
+        if (apiModal) apiModal.classList.remove("hidden");
+      }
+      function closeApiModal() {
+        if (apiModal) apiModal.classList.add("hidden");
+      }
+
+      document.getElementById("btnOpenApiModal").addEventListener("click", openApiModal);
+      document.getElementById("btnQuickApiConfig").addEventListener("click", openApiModal);
+      document.getElementById("btnOpenApiModalInline").addEventListener("click", openApiModal);
+      document.getElementById("btnCloseApiModal").addEventListener("click", closeApiModal);
+      document.getElementById("btnCancelApiModal").addEventListener("click", closeApiModal);
+
+      // Provider selection change
+      document.getElementById("selectApiProvider").addEventListener("change", function () {
+        var prov = this.value;
+        var modSelect = document.getElementById("selectAiModel");
+        var endWrap = document.getElementById("customEndpointWrap");
+        if (prov === "gemini") {
+          modSelect.value = "gemini-2.5-flash";
+          endWrap.classList.add("hidden");
+        } else if (prov === "openai") {
+          modSelect.value = "gpt-4o-mini";
+          endWrap.classList.add("hidden");
+        } else {
+          modSelect.value = "gpt-4o-mini";
+          endWrap.classList.remove("hidden");
+        }
+      });
+
+      // Show/Hide API Key
+      document.getElementById("btnToggleApiKeyVis").addEventListener("click", function () {
+        var keyInput = document.getElementById("inputApiKey");
+        if (keyInput.type === "password") {
+          keyInput.type = "text";
+          this.textContent = "🙈 លាក់";
+        } else {
+          keyInput.type = "password";
+          this.textContent = "👁️ បង្ហាញ";
+        }
+      });
+
+      // Auto-call API on paste checkbox
+      document.getElementById("chkAutoCallApiOnPaste").addEventListener("change", function () {
+        apiConfig.autoCallOnPaste = this.checked;
+        saveApiConfigToStorage();
+      });
+
+      // Save API Key
+      document.getElementById("btnSaveApiKey").addEventListener("click", function () {
+        apiConfig.provider = document.getElementById("selectApiProvider").value;
+        apiConfig.model = document.getElementById("selectAiModel").value;
+        apiConfig.apiKey = document.getElementById("inputApiKey").value.trim();
+        apiConfig.customEndpoint = document.getElementById("inputCustomEndpoint").value.trim();
+        apiConfig.customInstructions = document.getElementById("inputCustomInstructions").value.trim();
+        saveApiConfigToStorage();
+        closeApiModal();
+        if (hasActiveApiKey()) {
+          showToast("បានរក្សាទុក និងភ្ជាប់ API Key (" + apiConfig.model + ") ដោយជោគជ័យ!", "🔑");
+        } else {
+          showToast("បានរក្សាទុកការកំណត់ (Offline Smart Engine)។", "✓");
+        }
+      });
+
+      // Remove API Key
+      document.getElementById("btnRemoveApiKey").addEventListener("click", function () {
+        apiConfig.apiKey = "";
+        document.getElementById("inputApiKey").value = "";
+        saveApiConfigToStorage();
+        showToast("បានលុប API Key និងត្រឡប់ទៅប្រើ Offline Smart Engine។", "🗑️");
+      });
+
+      // Test API Connection button
+      document.getElementById("btnTestApiKey").addEventListener("click", async function () {
+        var keyVal = document.getElementById("inputApiKey").value.trim();
+        var statusMsg = document.getElementById("apiModalStatusMsg");
+        if (!keyVal) {
+          statusMsg.textContent = "⚠️ សូមបញ្ចូល API Key ជាមុនសិនមុនពេលសាកល្បង!";
+          return;
+        }
+        apiConfig.provider = document.getElementById("selectApiProvider").value;
+        apiConfig.model = document.getElementById("selectAiModel").value;
+        apiConfig.apiKey = keyVal;
+        apiConfig.customEndpoint = document.getElementById("inputCustomEndpoint").value.trim();
+        this.disabled = true;
+        statusMsg.textContent = "⏳ កំពុងសាកល្បងភ្ជាប់ទៅកាន់ " + apiConfig.model + "...";
+        try {
+          var sampleParsed = parseSmartScheduleInput(document.getElementById("aiPromptInput").value);
+          var testRes = await callExternalAiApi(document.getElementById("aiPromptInput").value, sampleParsed);
+          if (testRes && testRes.mainLesson) {
+            saveApiConfigToStorage();
+            statusMsg.textContent = "✅ ភ្ជាប់ជោគជ័យ! AI API ដំណើរការល្អ (" + testRes.mainLesson + ")";
+            showToast("សាកល្បងភ្ជាប់ API Key ជោគជ័យ!", "✅");
+          }
+        } catch (e) {
+          statusMsg.textContent = "❌ បរាជ័យ៖ " + e.message;
+        } finally {
+          this.disabled = false;
+        }
+      });
+
+      // Download Standalone HTML buttons
+      document.getElementById("btnDownloadStandaloneHtml").addEventListener("click", downloadStandaloneHtmlApp);
+      document.getElementById("btnDownloadStandaloneModal").addEventListener("click", downloadStandaloneHtmlApp);
+      // Populate 104-Lesson Curriculum Selector
+      var quickGradeSel = document.getElementById("selectQuickGradeToc");
+      var quickLessonSel = document.getElementById("selectQuickLessonToc");
+      function populateQuickLessonDropdown() {
+        if (!quickGradeSel || !quickLessonSel) return;
+        var selG = quickGradeSel.value || "៣";
+        var lessons = OFFICIAL_TOC_DB.filter(function (e) { return e.grade === selG; });
+        var optsHtml = "";
+        for (var i = 0; i < lessons.length; i++) {
+          var le = lessons[i];
+          var numKh = intToKhmer(le.lesson);
+          var pRange = intToKhmer(le.pStart) + (le.pEnd > le.pStart ? ("-" + intToKhmer(le.pEnd)) : "");
+          optsHtml += '<option value="' + i + '">មេរៀនទី' + numKh + '៖ ' + esc(le.title) + ' (ទំ. ' + pRange + ')</option>';
+        }
+        quickLessonSel.innerHTML = optsHtml;
+      }
+      if (quickGradeSel) {
+        populateQuickLessonDropdown();
+        quickGradeSel.addEventListener("change", populateQuickLessonDropdown);
+      }
+      var btnApplyToc = document.getElementById("btnApplyTocSelection");
+      if (btnApplyToc) {
+        btnApplyToc.addEventListener("click", function () {
+          var selG = quickGradeSel.value || "៣";
+          var lessons = OFFICIAL_TOC_DB.filter(function (e) { return e.grade === selG; });
+          var idx = parseInt(quickLessonSel.value, 10) || 0;
+          var le = lessons[idx] || lessons[0];
+          if (!le) return;
+          var subTxt = document.getElementById("inputQuickSubtopic").value.trim() || le.title;
+          var numKh = intToKhmer(le.lesson);
+          var ssP = intToKhmer(le.pStart);
+          var snippet = "ថ្នាក់ទី" + selG + " • ១ម៉\nសស. មេ. " + numKh + "៖ " + le.title + " " + subTxt + " (ទំ." + ssP + ")\nសគ. ជំ." + numKh + " មេ.១៖ សកម្ម. ទី១ (ទំ." + intToKhmer(le.pStart * 2 + 10) + ")";
+          document.getElementById("aiPromptInput").value = snippet;
+          generateLessonFromPrompt(snippet);
+        });
+      }
+
+      renderPresetCards();
+      applyPresetToForm(LESSON_PRESETS[0]);
+      renderParsedBooksPanel(parseSmartScheduleInput(document.getElementById("aiPromptInput").value));
+
+      // Tab buttons
+      var navBtns = document.querySelectorAll(".nav-tab-btn");
+      for (var i = 0; i < navBtns.length; i++) {
+        navBtns[i].addEventListener("click", function () {
+          switchTab(this.getAttribute("data-tab"));
+        });
+      }
+
+      // Sample Paste buttons
+      var samplePasteBtns = document.querySelectorAll(".sample-paste-btn");
+      for (var spIdx = 0; spIdx < samplePasteBtns.length; spIdx++) {
+        samplePasteBtns[spIdx].addEventListener("click", function () {
+          var key = this.getAttribute("data-sample-paste");
+          if (key && SAMPLE_PASTES[key]) {
+            var box = document.getElementById("aiPromptInput");
+            box.value = SAMPLE_PASTES[key];
+            generateLessonFromPrompt(box.value);
+          }
+        });
+      }
+
+      // Clear Paste Box button
+      document.getElementById("btnClearPasteBox").addEventListener("click", function () {
+        var box = document.getElementById("aiPromptInput");
+        box.value = "";
+        box.focus();
+        showToast("បានសម្អាតប្រអប់! សូម Paste ខ្លឹមសារមេរៀនថ្មី។", "🧹");
+      });
+
+      // Auto-generate immediately on PASTE into aiPromptInput!
+      document.getElementById("aiPromptInput").addEventListener("paste", function () {
+        var self = this;
+        setTimeout(function () {
+          if (self.value.trim().length > 3) {
+            generateLessonFromPrompt(self.value);
+          }
+        }, 60);
+      });
+
+      // Grade filter chips
+      var gradeChips = document.querySelectorAll(".grade-chip");
+      for (var g = 0; g < gradeChips.length; g++) {
+        gradeChips[g].addEventListener("click", function () {
+          currentGradeFilter = this.getAttribute("data-grade-filter") || "ALL";
+          for (var k = 0; k < gradeChips.length; k++) {
+            gradeChips[k].className = "grade-chip px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-700 hover:bg-slate-200";
+          }
+          this.className = "grade-chip px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-900 text-white";
+          renderPresetCards();
+        });
+      }
+
+      // Live form input binding
+      var formInputIds = [
+        "fieldGrade", "fieldTeacher", "fieldDuration", "fieldSchool",
+        "fieldLunarDate", "fieldSolarDate", "fieldMainLesson", "fieldSubTopic",
+        "fieldExpectedOutcome", "fieldActivityTitle", "fieldStandardLevel",
+        "fieldObjKnowledge", "fieldObjSkill", "fieldObjAttitude",
+        "fieldMatTeacher", "fieldMatStudent", "fieldStep2Review",
+        "fieldStep3PairWork", "fieldStep3KeyRule", "fieldStep3GroupGame",
+        "fieldMisconceptions", "fieldStep4Practice", "fieldStep5Homework",
+        "inputBarA", "inputBarB", "inputPlaceNum"
+      ];
+      for (var f = 0; f < formInputIds.length; f++) {
+        var el = document.getElementById(formInputIds[f]);
+        if (el) {
+          el.addEventListener("input", renderAllViews);
+          el.addEventListener("change", renderAllViews);
+        }
+      }
+
+      // Inline Edit Toggle
+      document.getElementById("toggleInlineEdit").addEventListener("change", function () {
+        renderAllViews();
+        if (this.checked) {
+          showToast("បានបើកមុខងារកែសម្រួលផ្ទាល់! ចុចលើអត្ថបទក្នុងតារាងដើម្បីកែប្រែ។", "✏️");
+        }
+      });
+
+      // AI Agent Button
+      document.getElementById("btnRunAiAgent").addEventListener("click", function () {
+        var val = document.getElementById("aiPromptInput").value;
+        generateLessonFromPrompt(val);
+      });
+
+      // Reset Default
+      document.getElementById("btnResetDefault").addEventListener("click", function () {
+        applyPresetToForm(LESSON_PRESETS[0]);
+        showToast("បានកំណត់ទម្រង់គំរូដើមឡើងវិញ។", "🔄");
+      });
+
+      // Navigation shortcuts
+      document.getElementById("btnGoFullDoc").addEventListener("click", function () {
+        switchTab("document");
+      });
+      document.getElementById("btnViewSlidesFromStudio").addEventListener("click", function () {
+        switchTab("slides");
+      });
+
+      // Slide Next / Prev
+      document.getElementById("btnPrevSlide").addEventListener("click", function () {
+        currentSlideIndex = (currentSlideIndex + 11) % 12;
+        renderSlidesAndManipulatives(getFormState());
+      });
+      document.getElementById("btnNextSlide").addEventListener("click", function () {
+        currentSlideIndex = (currentSlideIndex + 1) % 12;
+        renderSlidesAndManipulatives(getFormState());
+      });
+
+      // Traffic Light Formative Assessment Buttons
+      document.getElementById("btnTrafficGreen").addEventListener("click", function () {
+        var banner = document.getElementById("trafficCardBanner");
+        banner.className = "mt-4 p-3 rounded-xl text-center font-bold text-sm bg-emerald-100 text-emerald-950 border border-emerald-400";
+        banner.textContent = "🟢 សិស្សលើកបណ្ណសញ្ញាចរាចរពណ៌បៃតង៖ «យល់ស្រប / ចម្លើយត្រឹមត្រូវ!» — គ្រូកោតសរសើរ និងបន្តទៅលំហាត់បន្ទាប់។";
+      });
+      document.getElementById("btnTrafficRed").addEventListener("click", function () {
+        var banner = document.getElementById("trafficCardBanner");
+        banner.className = "mt-4 p-3 rounded-xl text-center font-bold text-sm bg-rose-100 text-rose-950 border border-rose-400";
+        banner.textContent = "🔴 សិស្សលើកបណ្ណសញ្ញាចរាចរពណ៌ក្រហម៖ «មិនយល់ស្រប / ត្រូវការជំនួយ!» — គ្រូពន្យល់បន្ថែមដោយប្រើសម្ភាររូបី និងកែតម្រូវកំហុសភាន់ច្រឡំ។";
+      });
+
+      // Export / Print / Copy / Save buttons
+      document.getElementById("btnQuickPrint").addEventListener("click", function () {
+        switchTab("document");
+        setTimeout(function () { window.print(); }, 150);
+      });
+      document.getElementById("btnPrintDoc").addEventListener("click", function () {
+        window.print();
+      });
+      document.getElementById("btnQuickExportDoc").addEventListener("click", exportToWordDoc);
+      document.getElementById("btnExportWordDoc").addEventListener("click", exportToWordDoc);
+      document.getElementById("btnCopyPlanStudio").addEventListener("click", copyLessonPlanToClipboard);
+      document.getElementById("btnCopyDocHtml").addEventListener("click", copyLessonPlanToClipboard);
+      document.getElementById("btnSavePlanStudio").addEventListener("click", saveCurrentPlanToLibrary);
+      document.getElementById("btnSavePlanDoc").addEventListener("click", saveCurrentPlanToLibrary);
+      document.getElementById("btnSaveCurrentInTab5").addEventListener("click", saveCurrentPlanToLibrary);
+    });
+  </script>
+</body>
+</html>
